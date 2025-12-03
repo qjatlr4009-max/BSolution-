@@ -49,12 +49,7 @@ namespace BSolution_
             var LogForm = new LogForm();
             LogForm.Show(propForm.Pane, DockAlignment.Bottom, 0.5);
 
-            //ㅁ내ㅑㅇ러ㅔㅁㅈㄷ로먄ㄹasdfasdf
-            //as;kdfjwef
-            //ak;sfjpaef
-            //asdf;jasdfwef
-            //asoiaw;foij
-            //asdf
+
         }
     }
 }
