@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using WeifenLuo.WinFormsUI.Docking;
+using System.IO;
 
 namespace BSolution_
 {
@@ -18,6 +19,16 @@ namespace BSolution_
         public CameraForm()
         {
             InitializeComponent();
+        }
+
+        public void LoadImage(string filename)
+        {
+            if (File.Exists(filename) == false)
+                return;
+
+            Image bitmap = Bitmap.FromFile(filename);
+            imageViewer.LoadBitmap((Bitmap)bitmap);
+
         }
     }
 }
