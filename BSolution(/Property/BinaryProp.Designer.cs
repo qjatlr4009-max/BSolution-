@@ -1,6 +1,6 @@
-﻿namespace BSolution_.UIControl
+﻿namespace BSolution_.Property
 {
-    partial class ImageViewCtrl
+    partial class BinaryProp
     {
         /// <summary> 
         /// 필수 디자이너 변수입니다.
@@ -28,19 +28,30 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.button1 = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
-            // ImageViewCtrl
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(41, 62);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.TabIndex = 0;
+            this.button1.Text = "button1";
+            this.button1.UseVisualStyleBackColor = true;
+            // 
+            // BinaryProp
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Name = "ImageViewCtrl";
-            this.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.ImageViewCtrl_MouseDoubleClick);
-            this.Resize += new System.EventHandler(this.ImageViewCtrl_Resize_1);
+            this.Controls.Add(this.button1);
+            this.Name = "BinaryProp";
             this.ResumeLayout(false);
 
         }
 
         #endregion
+
+        private System.Windows.Forms.Button button1;
     }
 }

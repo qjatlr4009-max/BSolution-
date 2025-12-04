@@ -1,6 +1,6 @@
-﻿namespace BSolution_.UIControl
+﻿namespace BSolution_.Property
 {
-    partial class ImageViewCtrl
+    partial class ImageFilterProp
     {
         /// <summary> 
         /// 필수 디자이너 변수입니다.
@@ -28,19 +28,29 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.SuspendLayout();
             // 
-            // ImageViewCtrl
+            // comboBox1
+            // 
+            this.comboBox1.FormattingEnabled = true;
+            this.comboBox1.Location = new System.Drawing.Point(15, 54);
+            this.comboBox1.Name = "comboBox1";
+            this.comboBox1.Size = new System.Drawing.Size(121, 26);
+            this.comboBox1.TabIndex = 0;
+            // 
+            // ImageFilterProp
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Name = "ImageViewCtrl";
-            this.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.ImageViewCtrl_MouseDoubleClick);
-            this.Resize += new System.EventHandler(this.ImageViewCtrl_Resize_1);
+            this.Controls.Add(this.comboBox1);
+            this.Name = "ImageFilterProp";
             this.ResumeLayout(false);
 
         }
 
         #endregion
+
+        private System.Windows.Forms.ComboBox comboBox1;
     }
 }

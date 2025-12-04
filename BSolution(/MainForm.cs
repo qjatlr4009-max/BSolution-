@@ -40,6 +40,12 @@ namespace BSolution_
             return findForm;
         }
 
+        private void imageOpenToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            CameraForm cameraForm = GetDockForm<CameraForm>();
+            if (cameraForm is null) return;
+
+        }
         private void LoadDockingWindows()
 
         {
@@ -57,7 +63,7 @@ namespace BSolution_
 
 
             var LogForm = new LogForm();
-            LogForm.Show(propForm.Pane, DockAlignment.Bottom, 0.5);
+            LogForm.Show(propForm.Pane, DockAlignment.Bottom, 0.3);
         }
 
 

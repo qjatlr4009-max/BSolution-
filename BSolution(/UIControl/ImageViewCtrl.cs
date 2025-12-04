@@ -8,6 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Drawing.Drawing2D;
+using System.Drawing.Text;
+using System.Windows.Media.Media3D;
 
 namespace BSolution_.UIControl
 {
@@ -32,6 +34,8 @@ namespace BSolution_.UIControl
             InitializeComponent();
             InitializeCanvas();
 
+
+            MouseWheel += new MouseEventHandler(ImageViewCCtrl_MouseWheel);
 
         }
         public Bitmap GetCurBitmap()
@@ -70,8 +74,14 @@ namespace BSolution_.UIControl
             float NewWidth = _bitmapImage.Width * _curZoom;
             float NewHeight = _bitmapImage.Height * _curZoom;
 
-            ImageRect = new RectangleF((Width - NewWidth) / 2,(Height - NewHeight) / 2,NewWidth,NewHeight
+            ImageRect = new RectangleF(
+                (Width - NewWidth) / 2, 
+                (Height - NewHeight) / 2, 
+                NewWidth, 
+                NewHeight
             );
+
+            ResizeCanvas();
             Invalidate();
         }
         private void RecalcZoomRatio()
@@ -119,7 +129,7 @@ namespace BSolution_.UIControl
 
         protected override void OnPaint(PaintEventArgs e)
         {
-            base.OnResize(e);
+            base.OnPaint(e);
 
             if (_bitmapImage != null && Canvas != null)
             {
@@ -133,6 +143,92 @@ namespace BSolution_.UIControl
                     e.Graphics.DrawImage(Canvas, 0, 0);
                 }
             }
+
+        }
+        private void ImageViewCCtrl_MouseWheel(object sender, MouseEventArgs e)
+        { 
+            if(e.Delta < 0)
+                ZoomMove(_curZoom/ _zoomFactor, e.Location);
+            else
+                ZoomMove(_curZoom * _zoomFactor, e.Location);
+
+            if(_bitmapImage != null)
+            {
+                ImageRect.Width = _bitmapImage.Width * _curZoom;
+                ImageRect.Height = _bitmapImage.Height * _curZoom;
+            }
+            Invalidate();
+        }
+
+        private void ZoomMove(float zoom, Point zoomOrigin)
+        {
+            PointF virtualOrigin = ScreenToVirtual(new PointF(zoomOrigin.X, zoomOrigin.Y));
+
+            _curZoom = Math.Max(MinZoom, Math.Min(MaxZoom, zoom));
+            if (_curZoom <= MinZoom)
+            return;
+
+            PointF zoomedOrigin = VirtualToScreen (virtualOrigin);
+
+            float dx = zoomedOrigin.X - zoomOrigin.X;
+            float dy = zoomedOrigin.Y - zoomOrigin.Y;
+
+            ImageRect.X -= dx;
+            ImageRect.Y -= dy;
+        }
+
+        private PointF GetScreenOffset()
+        {
+            return new PointF(ImageRect.X, ImageRect.Y);
+        }
+
+        private Rectangle ScreenToVirtual(Rectangle screenRect)
+        {
+            PointF offset = GetScreenOffset();
+            return new Rectangle(
+                (int)((screenRect.X - offset.X) / _curZoom + 0.5f),
+                (int)((screenRect.Y - offset.Y) / _curZoom + 0.5f),
+                (int)(screenRect.Width / _curZoom + 0.5f),
+                (int)(screenRect.Height / _curZoom + 0.5f));
+        }
+
+        private Rectangle VirtualToScreen(Rectangle virtualRect)
+        {
+            PointF offset = GetScreenOffset();
+            return new Rectangle(
+                (int)(virtualRect.X * _curZoom + offset.X + 0.5f),
+                (int)(virtualRect.Y * _curZoom + offset.Y + 0.5f),
+                (int)(virtualRect.Width * _curZoom + 0.5f),
+                (int)(virtualRect.Height * _curZoom + 0.5f));
+        }
+
+        private PointF ScreenToVirtual(PointF screenPos)
+        {
+            PointF offset = GetScreenOffset();
+            return new PointF(
+                (screenPos.X - offset.X) / _curZoom,
+                (screenPos.Y - offset.Y) / _curZoom);
+        }
+
+        private PointF VirtualToScreen(PointF virtualPos)
+        {
+            PointF offset = GetScreenOffset();
+            return new PointF(
+                virtualPos.X * _curZoom + offset.X,
+                virtualPos.Y * _curZoom + offset.Y);
+        }
+        private void ImageViewCtrl_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            FitImageToScreen();
+        }
+
+
+
+        private void ImageViewCtrl_Resize_1(object sender, EventArgs e)
+        
+        {
+            ResizeCanvas();
+            Invalidate();
         }
     }
 }
