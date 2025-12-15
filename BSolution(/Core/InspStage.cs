@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BSolution_.Inspect;
+using System.Data.SqlClient;
 
 
 namespace BSolution_.Core
