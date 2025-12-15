@@ -7,8 +7,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using OpenCVSharp;
-using BSolution_.Utill;
+using OpenCvSharp;
 
 namespace BSolution_.Core
 {

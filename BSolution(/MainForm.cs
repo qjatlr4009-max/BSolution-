@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Media.Animation;
 using WeifenLuo.WinFormsUI.Docking;
+using BSolution_.Core;
 
 namespace BSolution_
 {
@@ -30,6 +31,8 @@ namespace BSolution_
             _dockPanel.Theme = new VS2015DarkTheme();
 
             LoadDockingWindows();
+
+            Global.Inst.Initialize();
         }
 
         public static T GetDockForm<T>() where T : DockContent

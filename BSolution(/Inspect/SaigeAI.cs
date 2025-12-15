@@ -9,6 +9,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using SaigeVision.Net.V2;
+using SaigeVision.Net.V2.Detection;
+using SaigeVision.Net.V2.IAD;
+using SaigeVision.Net.V2.Segmentation;
 
 namespace BSolution_.Inspect
 {
