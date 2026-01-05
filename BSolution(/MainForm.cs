@@ -11,6 +11,7 @@ using System.Windows.Forms;
 using System.Windows.Media.Animation;
 using WeifenLuo.WinFormsUI.Docking;
 using BSolution_.Core;
+using BSolution_.Setting;
 
 namespace BSolution_
 {
@@ -32,7 +33,7 @@ namespace BSolution_
 
             LoadDockingWindows();
 
-            Global.Inst.Initialize();
+            Global.Inst.InspStage.Initialize();
         }
 
         public static T GetDockForm<T>() where T : DockContent
@@ -55,18 +56,17 @@ namespace BSolution_
             CameraForm cameraForm = new CameraForm();
             cameraForm.Show(_dockPanel, DockState.Document);
 
-            ResultForm resultForm = new ResultForm();
+            RunForm resultForm = new RunForm();
             resultForm.Show(cameraForm.Pane, DockAlignment.Bottom, 0.3);
-
-            var propForm = new PropertiesForm();
-            propForm.Show(_dockPanel, DockState.DockRight);
 
             var StatisticForm = new StatisticForm();
             StatisticForm.Show(_dockPanel, DockState.DockRight);
 
+            var propForm = new PropertiesForm();
+            propForm.Show(_dockPanel, DockState.DockRight);
 
             var LogForm = new LogForm();
-            LogForm.Show(propForm.Pane, DockAlignment.Bottom, 0.3);
+            LogForm.Show(propForm.Pane, DockAlignment.Bottom, 0.2);
         }
 
 
@@ -87,5 +87,18 @@ namespace BSolution_
                 }
             }
         }
+
+        private void setupToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            SetupForm setupForm = new SetupForm();
+            setupForm.ShowDialog();
+        }
+
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Global.Inst.Dispose();
+        }
+
+
     }
 }

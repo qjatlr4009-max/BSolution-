@@ -16,6 +16,7 @@ namespace BSolution_
         public LogForm()
         {
             InitializeComponent();
+
         }
     }
 }

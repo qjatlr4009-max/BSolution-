@@ -1,6 +1,6 @@
 ﻿namespace BSolution_.UIControl
 {
-    partial class ImageViewCtrl
+    partial class RangeTrackbar
     {
         /// <summary> 
         /// 필수 디자이너 변수입니다.
@@ -30,13 +30,12 @@
         {
             this.SuspendLayout();
             // 
-            // ImageViewCtrl
+            // RangeTrackbar
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Name = "ImageViewCtrl";
-            this.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.ImageViewCtrl_MouseDoubleClick);
-            this.Resize += new System.EventHandler(this.ImageViewCtrl_Resize);
+            this.Name = "RangeTrackbar";
+            this.Size = new System.Drawing.Size(662, 422);
             this.ResumeLayout(false);
 
         }

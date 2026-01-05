@@ -1,4 +1,6 @@
-﻿using BSolution_.Property;
+﻿using BSolution_.Algorithm;
+using BSolution_.Core;
+using BSolution_.Property;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -10,13 +12,16 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using WeifenLuo.WinFormsUI.Docking;
+using static BSolution_.Algorithm.BinaryThreshold;
+using static BSolution_.Property.BinaryProp;
 
 namespace BSolution_
 {
     public enum PropertyType
     {
         Binary,
-        Filter
+        Filter,
+        SaigeAI
     }
     public partial class PropertiesForm : DockContent
 
@@ -28,6 +33,7 @@ namespace BSolution_
 
             LoadOptionControl(PropertyType.Binary);
             LoadOptionControl(PropertyType.Filter);
+            LoadOptionControl(PropertyType.SaigeAI);
 
         }
 
@@ -75,6 +81,8 @@ namespace BSolution_
             {
                 case PropertyType.Binary:
                     BinaryProp blobProp = new BinaryProp();
+                    blobProp.RangeChanged += RangeSlider_RangeChanged;
+                    blobProp.PropertyChanged += PropertyChanged;
                     curProp = blobProp;
                     break;
 
@@ -83,12 +91,50 @@ namespace BSolution_
                     curProp = filterProp;
                     break;
 
+                case PropertyType.SaigeAI:
+                    SaigeAIProp saigeAIProp = new SaigeAIProp();
+                    curProp = saigeAIProp;
+                    break;
+
                 default:
                     MessageBox.Show("유효하지 않은 옵션입니다.");
                     return null;
             }
             return curProp;
         }
+
+        public void UpdateProperty(BlobAlgorithm blobAlgorithm)
+        {
+            if (blobAlgorithm is null)
+                return;
+            
+            foreach (TabPage tabPage in tabPropControl.TabPages)
+            {
+                if(tabPage.Controls.Count > 0)
+                {
+                    UserControl uc = tabPage.Controls[0] as UserControl;
+
+                    if (uc is BinaryProp binaryProp)
+                    {
+                        binaryProp.SetAlgorithm(blobAlgorithm);
+                    }
+                }
+            }
+        }
+        private void RangeSlider_RangeChanged(object sender, RangeChangedEventArgs e)
+        {
+            int lowerValue = e.LowerValue;
+            int upperValue = e.UpperValue;
+            bool invert = e.Invert;
+            ShowBinaryMode showBinMode = e.ShowBinMode;
+            Global.Inst.InspStage.PreView?.SetBinary(lowerValue, upperValue, invert, showBinMode);
+        }
+
+        private void PropertyChanged(object sender, EventArgs e)
+        {
+            Global.Inst.InspStage.RedrawMainView();
+        }
     }
 }
+
 

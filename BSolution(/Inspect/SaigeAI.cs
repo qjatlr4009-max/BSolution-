@@ -13,11 +13,14 @@ using SaigeVision.Net.V2;
 using SaigeVision.Net.V2.Detection;
 using SaigeVision.Net.V2.IAD;
 using SaigeVision.Net.V2.Segmentation;
+using SaigeVision.Net.V2.Classification;
+using System.Drawing.Text;
 
 namespace BSolution_.Inspect
 {
     public enum AIEngineType
     {
+
         [Description("Anomaly Detection")]
         AnomalyDetection = 0,
         [Description("Segmentation")]
@@ -29,6 +32,9 @@ namespace BSolution_.Inspect
     public class SaigeAI : IDisposable
     {
         AIEngineType _engineType;
+
+        ClassificationEngine _clsEngine = null;
+        ClassificationEngine _clsResult = null;
         IADEngine _iADEngine = null;
         IADResult _iADResult = null;
         SegmentationEngine _segEngine = null;
@@ -164,6 +170,24 @@ namespace BSolution_.Inspect
             // option을 적용하여 검사에 대한 조건을 변경할 수 있습니다.
             // 필요에 따라 writeModelFile parameter를 이용하여 모델파일에 정보를 영구적으로 변경할 수 있습니다.
             _detEngine.SetInferenceOption(option);
+        }
+
+        public void LoadClsEngine(string modelPath)
+        {
+            // 검사하기 위한 엔진에 대한 객체를 생성합니다.
+            // 인스턴스 생성 시 모데파일 정보와 GPU Index를 입력해줍니다.
+            // 필요에 따라 batch size를 입력합니다
+            _clsEngine = new ClassificationEngine(modelPath, 0);
+            // 검사 전 option에 대한 설정을 가져옵니다
+            ClassificationOption option = _clsEngine.GetInferenceOption();
+            /// 추론 API 실행에 소요되는 시간을 세분화하여 출력할지 결정합니다.
+            /// `true`로 설정하면 이미지를 읽는 시간, 순수 딥러닝 추론 시간, 후처리 시간을 각각 확인할 수 있습니다.
+            /// `false`로 설정하면 추론 API 실행에 소요된 총 시간만을 확인할 수 있습니다.
+            /// `true`로 설정하면 전체 추론 시간이 느려질 수 있습니다. 실제 검사 시에는 `false`로 설정하는 것을 권장합니다.
+            option.CalcTime = true;
+            // option을 적용하여 검사에 대한 조건을 변경할 수 있습니다.
+            // 필요에 따라 writeModelFile parameter를 이용하여 모델파일에 정보를 영구적으로 변경할 수 있습니다.
+            _clsEngine.SetInferenceOption(option);
         }
 
 

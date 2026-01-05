@@ -1,14 +1,16 @@
-﻿using System;
+﻿using BSolution_.Algorithm;
+using BSolution_.Core;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Text;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Drawing.Drawing2D;
-using System.Drawing.Text;
 using System.Windows.Media.Media3D;
 
 namespace BSolution_.UIControl
@@ -29,6 +31,8 @@ namespace BSolution_.UIControl
 
         private float MinZoom = 1.0f;
         private float MaxZoom = 100.0f;
+
+        private List<DrawInspectInfo> _rectInfos = new List<DrawInspectInfo>();
         public ImageViewCtrl()
         {
             InitializeComponent();
@@ -140,11 +144,99 @@ namespace BSolution_.UIControl
                     g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
                     g.DrawImage(_bitmapImage, ImageRect);
 
+
+                    DrawDiagram(g);
+
                     e.Graphics.DrawImage(Canvas, 0, 0);
                 }
             }
-
         }
+
+        private void DrawDiagram(Graphics g)
+        {
+            if (_rectInfos != null)
+            {
+                foreach (DrawInspectInfo rectInfo in _rectInfos)
+                {
+                    Color lineColor = Color.LightCoral;
+                    if (rectInfo.decision == DecisionType.Defect)
+                        lineColor = Color.Red;
+                    else if (rectInfo.decision == DecisionType.Good)
+                        lineColor = Color.LightGreen;
+
+                    Rectangle rect = new Rectangle(rectInfo.rect.X, rectInfo.rect.Y, rectInfo.rect.Width, rectInfo.rect.Height);
+                    Rectangle screenRect = VirtualToScreen(rect);
+
+                    using (Pen pen = new Pen(lineColor, 2))
+                    {
+                        if (rectInfo.UseRotatedRect)
+                        {
+                            PointF[] screenPoints = rectInfo.rotatedPoints
+                                                    .Select(p => VirtualToScreen(new PointF(p.X, p.Y))) // 화면 좌표계로 변환
+                                                    .ToArray();
+
+                            if (screenPoints.Length == 4)
+                            {
+                                for (int i = 0; i < 4; i++)
+                                {
+                                    g.DrawLine(pen, screenPoints[i], screenPoints[(i + 1) % 4]); // 시계방향으로 선 연결
+                                }
+                            }
+                        }
+                        else
+                        {
+                            g.DrawRectangle(pen, screenRect);
+                        }
+                    }
+
+                    if (rectInfo.info != "")
+                    {
+                        float baseFontSize = 20.0f;
+
+                        if (rectInfo.decision == DecisionType.Info)
+                        {
+                            baseFontSize = 3.0f;
+                            lineColor = Color.LightBlue;
+                        }
+
+                        float fontSize = baseFontSize * _curZoom;
+
+                        string infoText = rectInfo.info;
+                        PointF textPos = new PointF(screenRect.Left, screenRect.Top);
+
+                        if (rectInfo.inspectType == InspectType.InspBinary
+                            && rectInfo.decision != DecisionType.Info)
+                        {
+                            textPos.Y = screenRect.Bottom - fontSize;
+                        }
+
+                        DrawText(g, infoText, textPos, fontSize, lineColor);
+                    }
+                }
+            }
+        }
+        private void DrawText(Graphics g, string text, PointF position, float fontSize, Color color)
+        {
+            using (Font font = new Font("Arial", fontSize, FontStyle.Bold))
+
+            using (Brush outlineBrush = new SolidBrush(Color.Black))
+
+            using (Brush textBrush = new SolidBrush(color))
+            {
+
+                for (int dx = -1; dx <= 1; dx++)
+                {
+                    for (int dy = -1; dy <= 1; dy++)
+                    {
+                        if (dx == 0 && dy == 0) continue;
+                        PointF borderPos = new PointF(position.X + dx, position.Y + dy);
+                        g.DrawString(text, font, outlineBrush, borderPos);
+                    }
+                }
+                g.DrawString(text, font, textBrush, position);
+            }
+        }
+
         private void ImageViewCCtrl_MouseWheel(object sender, MouseEventArgs e)
         { 
             if(e.Delta < 0)
@@ -222,12 +314,21 @@ namespace BSolution_.UIControl
             FitImageToScreen();
         }
 
-
-
-        private void ImageViewCtrl_Resize_1(object sender, EventArgs e)
+        private void ImageViewCtrl_Resize(object sender, EventArgs e)
         
         {
             ResizeCanvas();
+            Invalidate();
+        }
+        public void AddRect(List<DrawInspectInfo> rectInfos)
+        {
+            _rectInfos.AddRange(rectInfos);
+            Invalidate();
+        }
+
+        public void ResetEntity()
+        {
+            _rectInfos.Clear();
             Invalidate();
         }
     }

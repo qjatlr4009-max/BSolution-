@@ -10,6 +10,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using WeifenLuo.WinFormsUI.Docking;
+using OpenCvSharp;
+using BSolution_.Algorithm;
+using System.Security.Cryptography.X509Certificates;
 
 namespace BSolution_
 {
@@ -44,6 +47,9 @@ namespace BSolution_
 
             if (imageViewer != null)
                 imageViewer.LoadBitmap(bitmap);
+
+            Mat curImage = Global.Inst.InspStage.GetMat();
+            Global.Inst.InspStage.PreView.SetImage(curImage);
         }
 
         public Bitmap GetDisplayImage()
@@ -55,7 +61,20 @@ namespace BSolution_
 
             return curImage;
         }
+        public void UpdateImageViewer()
+        {
+            imageViewer.Invalidate();
+        }
 
+        public void ResetDisplay()
+        {
+            imageViewer.ResetEntity();
+        }
+
+        public void AddRect(List<DrawInspectInfo> rectInfos)
+        {
+            imageViewer.AddRect(rectInfos);
+        }
     }
 }
 

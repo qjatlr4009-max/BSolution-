@@ -1,6 +1,6 @@
-﻿namespace BSolution_
+﻿namespace BSolution_.Setting
 {
-    partial class ResultForm
+    partial class SetupForm
     {
         /// <summary>
         /// Required designer variable.
@@ -28,12 +28,32 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
+            this.tabSetting = new System.Windows.Forms.TabControl();
+            this.SuspendLayout();
+            // 
+            // tabSetting
+            // 
+            this.tabSetting.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabSetting.Location = new System.Drawing.Point(0, 0);
+            this.tabSetting.Name = "tabSetting";
+            this.tabSetting.SelectedIndex = 0;
+            this.tabSetting.Size = new System.Drawing.Size(800, 450);
+            this.tabSetting.TabIndex = 0;
+            // 
+            // SetupForm
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Text = "ResultForm";
+            this.Controls.Add(this.tabSetting);
+            this.Name = "SetupForm";
+            this.Text = "SetupForm";
+            this.ResumeLayout(false);
+
         }
 
         #endregion
+
+        private System.Windows.Forms.TabControl tabSetting;
     }
 }

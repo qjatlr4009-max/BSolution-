@@ -1,4 +1,6 @@
-﻿using System;
+﻿using BSolution_.Core;
+using BSolution_.Inspect;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -7,73 +9,88 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using BSolution_.Core;
+using System.Windows.Media.Animation;
 
 namespace BSolution_.Property
 {
-    public partial class AIModuleProp : UserControl
+    public partial class SaigeAIProp : UserControl
     {
-        SaigeAI _saigeAI; // SaigeAI 인스턴스
-        string _modelPath = string.Empty;
+        SaigeAI _saigeAI = new SaigeAI();
+        string _txtPath = string.Empty;
         AIEngineType _engineType;
 
-        public AIModuleProp()
+
+
+        public SaigeAIProp()
         {
             InitializeComponent();
 
-            cbAIModelType.DataSource = Enum.GetValues(typeof(AIEngineType)).Cast<AIEngineType>().ToList();
+            cbAIModelType.DataSource = Enum.GetValues(typeof(AIEngineType));
             cbAIModelType.SelectedIndex = 0;
         }
 
-        private void btnSelAIModel_Click(object sender, EventArgs e)
+        private void btn_AISelect_Click(object sender, EventArgs e)
         {
-            string filter = "AI Files|*.*;";
+            string filter = "AI Model Files|*.*";
 
             switch (_engineType)
             {
                 case AIEngineType.AnomalyDetection:
-                    filter = "Anomaly Detection Files|*.saigeiad;";
+                    filter = "Anommaly Detection Model Files|*.saigeiad;";
                     break;
                 case AIEngineType.Segmentation:
-                    filter = "Segmentation Files|*.saigeseg;";
+                    filter = "Segmentation Model Files|*.saigeseg;";
                     break;
                 case AIEngineType.Detection:
-                    filter = "Detection Files|*.saigedet;";
+                    filter = "Detection Model Files|*.saigedet"; ;
                     break;
             }
-
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
-                openFileDialog.Title = "AI 모델 파일 선택";
+
                 openFileDialog.Filter = filter;
-                openFileDialog.Multiselect = false;
+                openFileDialog.Title = "AI 모델 선택";
                 openFileDialog.InitialDirectory = @"C:\Saige\SaigeVision\engine\Examples\data\sfaw2023\models";
+                openFileDialog.Multiselect = false;
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    _modelPath = openFileDialog.FileName;
-                    txtAIModelPath.Text = _modelPath;
+                    _txtPath = openFileDialog.FileName;
+                    txtPath.Text = _txtPath;
                 }
             }
-        }
-
-        private void btnLoadModel_Click(object sender, EventArgs e)
-        {
-            if (string.IsNullOrEmpty(_modelPath))
+            if (string.IsNullOrEmpty(_txtPath))
             {
-                MessageBox.Show("모델 파일을 선택해주세요.", "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("AI 모델을 선택하세요.", "경고", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-
             if (_saigeAI == null)
             {
                 _saigeAI = Global.Inst.InspStage.AIModule;
             }
-
-            _saigeAI.LoadEngine(_modelPath, _engineType);
-            MessageBox.Show("모델이 성공적으로 로드되었습니다.", "정보", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
-        private void btnInspAI_Click(object sender, EventArgs e)
+        private void btn_Loading_Click(object sender, EventArgs e)
+        {
+            {
+                if (string.IsNullOrEmpty(_txtPath))
+                {
+                    MessageBox.Show("모델 파일을 선택해주세요.", "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                if (_saigeAI == null)
+                {
+                    _saigeAI = Global.Inst.InspStage.AIModule;
+                }
+
+                _saigeAI.LoadEngine(_txtPath, _engineType);
+                MessageBox.Show("모델이 성공적으로 로드되었습니다.", "정보", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+
+
+
+        private void btn_AIInsp_Click(object sender, EventArgs e)
         {
             if (_saigeAI == null)
             {
@@ -82,7 +99,7 @@ namespace BSolution_.Property
             }
 
             Bitmap bitmap = Global.Inst.InspStage.GetCurrentImage();
-            if (bitmap is null)
+            if (bitmap == null)
             {
                 MessageBox.Show("현재 이미지가 없습니다.", "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
@@ -93,8 +110,8 @@ namespace BSolution_.Property
             Bitmap resultImage = _saigeAI.GetResultImage();
 
             Global.Inst.InspStage.UpdateDisplay(resultImage);
-
         }
+
 
         private void cbAIModelType_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -110,4 +127,3 @@ namespace BSolution_.Property
         }
     }
 }
-
