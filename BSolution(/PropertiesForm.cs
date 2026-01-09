@@ -14,6 +14,7 @@ using System.Windows.Forms;
 using WeifenLuo.WinFormsUI.Docking;
 using static BSolution_.Algorithm.BinaryThreshold;
 using static BSolution_.Property.BinaryProp;
+using BSolution_.Teach;
 
 namespace BSolution_
 {
@@ -103,20 +104,24 @@ namespace BSolution_
             return curProp;
         }
 
-        public void UpdateProperty(BlobAlgorithm blobAlgorithm)
+        public void UpdateProperty(InspWindow window)
         {
-            if (blobAlgorithm is null)
+            if (window is null)
                 return;
-            
+
             foreach (TabPage tabPage in tabPropControl.TabPages)
             {
-                if(tabPage.Controls.Count > 0)
+                if (tabPage.Controls.Count > 0)
                 {
                     UserControl uc = tabPage.Controls[0] as UserControl;
 
                     if (uc is BinaryProp binaryProp)
                     {
-                        binaryProp.SetAlgorithm(blobAlgorithm);
+                        BlobAlgorithm blobAlgo = (BlobAlgorithm)window.FindInspAlgorithm(InspectType.InspBinary);
+                        if (blobAlgo is null)
+                            continue;
+
+                        binaryProp.SetAlgorithm(blobAlgo);
                     }
                 }
             }

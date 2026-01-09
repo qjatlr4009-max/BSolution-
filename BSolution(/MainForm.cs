@@ -53,6 +53,8 @@ namespace BSolution_
         private void LoadDockingWindows()
 
         {
+            _dockPanel.AllowEndUserDocking = false;
+
             CameraForm cameraForm = new CameraForm();
             cameraForm.Show(_dockPanel, DockState.Document);
 
@@ -66,7 +68,10 @@ namespace BSolution_
             propForm.Show(_dockPanel, DockState.DockRight);
 
             var LogForm = new LogForm();
-            LogForm.Show(propForm.Pane, DockAlignment.Bottom, 0.2);
+            LogForm.Show(propForm.Pane, DockAlignment.Bottom, 0.3);
+
+            var modelTreeForm = new ModelTreeForm();
+            modelTreeForm.Show(resultForm.Pane, DockAlignment.Right,0.3);
         }
 
 

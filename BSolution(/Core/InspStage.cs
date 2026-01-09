@@ -1,5 +1,4 @@
-﻿using BSolution_.Algorithm;
-using BSolution_.Grab;
+﻿using BSolution_.Grab;
 using BSolution_.Inspect;
 using OpenCvSharp;
 using OpenCvSharp.Extensions;
@@ -12,9 +11,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static BSolution_.Algorithm.BinaryThreshold;
 using BSolution_.Setting;
-
+using BSolution_.Teach;
+using BSolution_.Algorithm;
 
 namespace BSolution_.Core
 {
@@ -28,8 +27,12 @@ namespace BSolution_.Core
 
         Inspect.SaigeAI _saigeAI; // SaigeAI 인스턴스
 
-        BlobAlgorithm _blobAlgorithm = null;
+        //BlobAlgorithm _blobAlgorithm = null;
         private PreviewImage _previewImage = null;
+
+        private Model _model = null;
+
+        private InspWindow _selectedInspWindow = null;
 
         public InspStage() { }
         public ImageSpace ImageSpace
@@ -47,14 +50,19 @@ namespace BSolution_.Core
             }
         }
 
-        public BlobAlgorithm BlobAlgorithm
-        {
-            get => _blobAlgorithm;
-        }
+        //public BlobAlgorithm BlobAlgorithm
+        //{
+        //    get => _blobAlgorithm;
+        //}
 
         public PreviewImage PreView
         {
             get => _previewImage;
+        }
+
+        public Model CurModel
+        {
+            get => _model;
         }
 
         public bool LiveMode { get; set; } = false;
@@ -63,8 +71,10 @@ namespace BSolution_.Core
         {
             _imageSpace = new ImageSpace();
 
-            _blobAlgorithm = new BlobAlgorithm();
+            //_blobAlgorithm = new BlobAlgorithm();
             _previewImage = new PreviewImage();
+
+            _model = new Model();
 
             LoadSetting();
 
@@ -119,20 +129,19 @@ namespace BSolution_.Core
 
             //_grabManager.SetExposureTime(25000);
 
-            UpdateProperty();
         }
-
-        private void UpdateProperty()
+        private void UpdateProperty(InspWindow inspWindow)
         {
-            if (BlobAlgorithm is null)
+            if (inspWindow is null)
                 return;
 
             PropertiesForm propertiesForm = MainForm.GetDockForm<PropertiesForm>();
             if (propertiesForm is null)
                 return;
 
-            propertiesForm.UpdateProperty(BlobAlgorithm);
+            propertiesForm.UpdateProperty(inspWindow);
         }
+
         public void SetBuffer(int bufferCount)
         {
             if (_grabManager == null)
@@ -154,41 +163,161 @@ namespace BSolution_.Core
             }
         }
 
-        public void TryInspection()
+        public void TryInspection(InspWindow inspWindow = null)
         {
-            if (_blobAlgorithm is null)
-                return;
-
-            Mat srcImage = Global.Inst.InspStage.GetMat();
-            _blobAlgorithm.SetInspData(srcImage);
-
-            _blobAlgorithm.InspRect = new Rect(0, 0, srcImage.Width, srcImage.Height);
-
-            if (_blobAlgorithm.DoInspect())
+            if (inspWindow is null)
             {
-                DisplayResult();
+                if (_selectedInspWindow is null)
+                    return;
+
+                inspWindow = _selectedInspWindow;
             }
-        }
 
-        private bool DisplayResult()
-        {
-            if (_blobAlgorithm is null)
-                return false;
+            UpdateDiagramEntity();
 
-            List<DrawInspectInfo> resultArea = new List<DrawInspectInfo>();
-            int resultCnt = _blobAlgorithm.GetResultRect(out resultArea);
-            if ((resultCnt > 0))
+            List<DrawInspectInfo> totalArea = new List<DrawInspectInfo>();
+
+            Rect windowArea = inspWindow.WindowArea;
+
+            foreach (var inspAlgo in inspWindow.AlgorithmList)
+            {
+                inspAlgo.TeachRect = windowArea;
+                inspAlgo.InspRect = windowArea;
+
+                InspectType inspType = inspAlgo.InspectType;
+
+                switch (inspType)
                 {
+                    case InspectType.InspBinary:
+                        {
+                            BlobAlgorithm blobAlgo = (BlobAlgorithm)inspAlgo;
+
+                            Mat srcImage = Global.Inst.InspStage.GetMat();
+                            blobAlgo.SetInspData(srcImage);
+
+                            if (blobAlgo.DoInspect())
+                            {
+                                List<DrawInspectInfo> resultArea = new List<DrawInspectInfo>();
+                                int resultCnt = blobAlgo.GetResultRect(out resultArea);
+                                if (resultCnt > 0)
+                                {
+                                    totalArea.AddRange(resultArea);
+                                }
+                            }
+                            break;
+                        }
+                }
+                if (inspAlgo.DoInspect())
+                {
+                    List<DrawInspectInfo> resultArea = new List<DrawInspectInfo>();
+                    int resultCnt = inspAlgo.GetResultRect(out resultArea);
+                    if (resultCnt > 0)
+                    {
+                        totalArea.AddRange(resultArea);
+                    }
+                }
+            }
+
+            if (totalArea.Count > 0)
+            {
                 var cameraForm = MainForm.GetDockForm<CameraForm>();
                 if (cameraForm != null)
                 {
-                    cameraForm.ResetDisplay();
-                    cameraForm.AddRect(resultArea);
+                    cameraForm.AddRect(totalArea);
                 }
             }
+        }
+        
+        public void SelectInspWindow (InspWindow inspWindow)
+        {
+            _selectedInspWindow = inspWindow;
+
+            var propForm = MainForm.GetDockForm<PropertiesForm>();
+            if (propForm != null)
+            {
+                if (inspWindow is null)
+                {
+                    propForm.ResetProperty();
+                    return;
+                }
+                propForm.ShowProperty(inspWindow);
+            }
+            UpdateProperty(inspWindow);
+
+            Global.Inst.InspStage.PreView.SetInspWindow(inspWindow);
+        }
+
+        public void AddInspWindow(InspWindowType windowType, Rect rect)
+        {
+            InspWindow inspWindow = _model.AddInspWindow(windowType);
+            if (inspWindow is null)
+                return;
+
+            inspWindow.WindowArea = rect;
+            inspWindow.IsTeach = false;
+            UpdateProperty(inspWindow);
+            UpdateDiagramEntity();
+
+            CameraForm cameraForm = MainForm.GetDockForm<CameraForm>();
+            if (cameraForm != null)
+            {
+                cameraForm.SelectDiagramEntity(inspWindow);
+                SelectInspWindow(inspWindow);
+            }
+        }
+
+        public bool AddInspWindow(InspWindow sourceWindow, OpenCvSharp.Point offset)
+        {
+            InspWindow cloneWindow = sourceWindow.Clone(offset);
+            if (cloneWindow is null)
+                return false;
+
+            if (!_model.AddInspWindow(cloneWindow))
+                return false;
+
+            UpdateProperty(cloneWindow);
+            UpdateDiagramEntity();
+
+            CameraForm cameraForm = MainForm.GetDockForm<CameraForm>();
+            if (cameraForm != null)
+            {
+                cameraForm.SelectDiagramEntity(cloneWindow);
+                SelectInspWindow(cloneWindow);
+            }
+
             return true;
         }
 
+        public void MoveInspWindow (InspWindow inspWindow, OpenCvSharp.Point offset)
+        {
+            if (inspWindow is null)
+                return;
+            inspWindow.OffsetMove(offset);
+            UpdateProperty(inspWindow);
+        }
+
+        public void ModifyInspWindow(InspWindow inspWindow, Rect rect)
+        {
+            if (inspWindow == null)
+                return;
+
+            inspWindow.WindowArea = rect;
+            inspWindow.IsTeach = false;
+            
+            UpdateProperty(inspWindow);
+        }
+
+        public void DelInspWindow(InspWindow inspWindow)
+        {
+            _model.DelInspWindow(inspWindow);
+            UpdateDiagramEntity();
+        }
+
+        public void DelInspWindow(List<InspWindow> inspWindowList)
+        {
+            _model.DelInspWindowList(inspWindowList);
+            UpdateDiagramEntity();
+        }
 
         public void Grab(int bufferIndex)
         {
@@ -262,6 +391,20 @@ namespace BSolution_.Core
         public Mat GetMat()
         {
             return Global.Inst.InspStage.ImageSpace.GetMat();
+        }
+
+        public void UpdateDiagramEntity()
+        {
+            CameraForm cameraForm = MainForm.GetDockForm<CameraForm>();
+            if (cameraForm != null)
+            {
+                cameraForm.UpdateDiagramEntity();
+            }
+            ModelTreeForm modelTreeForm = MainForm.GetDockForm<ModelTreeForm>();
+            if (modelTreeForm != null)
+            {
+                modelTreeForm.UpdateDiagramEntity();
+            }
         }
 
         public void RedrawMainView()

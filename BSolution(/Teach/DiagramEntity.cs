@@ -11,14 +11,14 @@ namespace BSolution_.Teach
     {
         public InspWindow LinkedWindow { get; set; }
         public Rectangle EntityROI { get; set; }
-        public Color EntitColor { get; set; }
+        public Color EntityColor { get; set; }
         public bool IsHold { get; set; }
 
         public DiagramEntity()
         {
             LinkedWindow = null;
             EntityROI = new Rectangle(0, 0, 0, 0);
-            EntitColor = Color.Red;
+            EntityColor = Color.Red;
             IsHold = false;
         }
 
@@ -26,7 +26,7 @@ namespace BSolution_.Teach
         {
             LinkedWindow = null;
             EntityROI = rect;
-            EntitColor = entityColor;
+            EntityColor = entityColor;
             IsHold = hold;
         }
     }

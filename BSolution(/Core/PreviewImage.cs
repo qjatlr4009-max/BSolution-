@@ -1,13 +1,14 @@
 ﻿using BSolution_.Algorithm;
+using BSolution_.Property;
+using BSolution_.Teach;
+using OpenCvSharp;
+using OpenCvSharp.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using OpenCvSharp;
-using OpenCvSharp.Extensions;
-using System.Drawing;
-using BSolution_.Property;
 using System.Windows.Forms;
 
 namespace BSolution_.Core
@@ -17,7 +18,7 @@ namespace BSolution_.Core
         private Mat _originalImage = null;
         private Mat _previewImage = null;
 
-        private InspWindowType _inspWindow = null;
+        private InspWindow _inspWindow = null;
         private bool _usePreview = true;
 
         public void SetImage(Mat image)
@@ -26,6 +27,10 @@ namespace BSolution_.Core
             _previewImage = new Mat();
         }
 
+        public void SetInspWindow(InspWindow inspWindow)
+        {
+            _inspWindow = inspWindow;
+        }
         public void SetBinary(int lowerValue, int upperValue, bool invert, ShowBinaryMode showBinMode)
         {
             if (_usePreview == false)
@@ -46,6 +51,11 @@ namespace BSolution_.Core
             }
 
             Rect windowArea = new Rect(0, 0, _originalImage.Width, _originalImage.Height);
+
+            if (_inspWindow != null)
+            {
+                windowArea = _inspWindow.WindowArea;
+            }
 
             Mat orgRoi = _originalImage[windowArea];
 
