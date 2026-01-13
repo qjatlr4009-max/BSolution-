@@ -38,6 +38,7 @@
             this.tvModelTree.Name = "tvModelTree";
             this.tvModelTree.Size = new System.Drawing.Size(800, 450);
             this.tvModelTree.TabIndex = 1;
+            this.tvModelTree.MouseDown += new System.Windows.Forms.MouseEventHandler(this.tvModelTree_MouseDown);
             // 
             // ModelTreeForm
             // 

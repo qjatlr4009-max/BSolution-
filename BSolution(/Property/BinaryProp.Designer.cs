@@ -113,7 +113,7 @@
             this.dataGridViewFilter.RowTemplate.Height = 30;
             this.dataGridViewFilter.Size = new System.Drawing.Size(347, 213);
             this.dataGridViewFilter.TabIndex = 4;
-            this.dataGridViewFilter.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridViewFilter_CellContentClick);
+            this.dataGridViewFilter.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridViewFilter_CellValueChanged);
             this.dataGridViewFilter.CurrentCellDirtyStateChanged += new System.EventHandler(this.dataGridViewFilter_CurrentCellDirtyStateChanged);
             // 
             // chkRotatedRect

@@ -1,9 +1,11 @@
-﻿using System;
+﻿using BSolution_.Core;
+using OpenCvSharp;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using OpenCvSharp;
+using System.Xml.Serialization;
 
 namespace BSolution_.Algorithm
 {
@@ -12,13 +14,17 @@ namespace BSolution_.Algorithm
         InspNone = -1,
         InspBinary,
         InspFilter,
+        InspMatch,
         InspAIModule,
         InspCount
     }
 
+    [XmlInclude(typeof(BlobAlgorithm))]
+    [XmlInclude(typeof(MatchAlgorithm))]
+
     public abstract class InspAlgorithm
     {
-        public InspectType InspectType { get; set; }
+        public InspectType InspectType { get; set; } = InspectType.InspNone;
 
         public bool IsUse { get; set; } = true;
 
@@ -26,6 +32,8 @@ namespace BSolution_.Algorithm
 
         public Rect TeachRect {  get; set; }
         public Rect InspRect { get; set; }
+
+        public eImageChannel ImageChannel { get; set; } = eImageChannel.Gray;
 
         protected Mat _srcImage = null;
 
@@ -46,9 +54,9 @@ namespace BSolution_.Algorithm
             target.InspRect = this.InspRect;
         }
 
-        public virtual void SetInspData(Mat scrImage)
+        public virtual void SetInspData(Mat srcImage)
         {
-            _srcImage = scrImage;
+            _srcImage = srcImage;
         }
 
         public abstract bool DoInspect();

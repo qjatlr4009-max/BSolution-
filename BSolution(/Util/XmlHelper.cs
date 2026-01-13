@@ -153,73 +153,73 @@ namespace Common.Util.Helpers
 			return false;
 		}
 
-		#region Serialization
+        #region Serialization
 
-		/// <summary>
-		/// Loads serialized xml file as an object
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <param name="fileName"></param>
-		/// <returns></returns>
-		
-		public static T LoadXml<T>(string fileName)
-		{
-			// In case of non-existence of the file, create a new file
-			if (File.Exists(fileName) == false)
-				SaveXml<T>(fileName, (T)Activator.CreateInstance(typeof(T)));
+        /// <summary>
+        /// Loads serialized xml file as an object
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
 
-			// In case of a zero size file, delete it first and recreate it
-			FileInfo file = new FileInfo(fileName);
-			if (file.Length <= 0)
-			{
-				file.Delete();
-				SaveXml<T>(fileName, (T)Activator.CreateInstance(typeof(T)));
-			}
+        /// <summary>
+        /// Loads serialized xml file as an object
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
+
+        public static T LoadXml<T>(string fileName)
+        {
+            // In case of non-existence of the file, create a new file
+            if (File.Exists(fileName) == false)
+                SaveXml<T>(fileName, (T)Activator.CreateInstance(typeof(T)));
+
+            // In case of a zero size file, delete it first and recreate it
+            FileInfo file = new FileInfo(fileName);
+            if (file.Length <= 0)
+            {
+                file.Delete();
+                SaveXml<T>(fileName, (T)Activator.CreateInstance(typeof(T)));
+            }
 
             //LoadXML<T>는 **XML 파일 → 객체 변환 (역직렬화)**하여 데이터를 복원
             XmlSerializer deserializer = XmlSerializer.FromTypes(new[] { typeof(T) })[0];
-			// Restore data from a XML document
-			//System.Xml.Serialization.XmlSerializer serializer = new System.Xml.Serialization.XmlSerializer(typeof(T));
-			using (Stream stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-			{
-				return (T)deserializer.Deserialize(stream);
-				//return (T)serializer.Deserialize(stream);
-			}
-		}
-
-		/// <summary>
-		/// Saves an object to a serialized xml file
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <param name="fileName"></param>
-		/// <param name="obj"></param>
-		public static void SaveXml<T>(string fileName, T obj)
-		{
+            // Restore data from a XML document
+            //System.Xml.Serialization.XmlSerializer serializer = new System.Xml.Serialization.XmlSerializer(typeof(T));
+            using (Stream stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            {
+                return (T)deserializer.Deserialize(stream);
+                //return (T)serializer.Deserialize(stream);
+            }
+        }
+        public static void SaveXml<T>(string fileName, T obj)
+        {
             //XmlSerializer를 사용하여 객체 → XML 변환(직렬화) 후, FileStream을 통해 파일로 저장
 
             using (Stream stream = new FileStream(fileName, FileMode.Create))
-			{
-				try
-				{
-					//	XmlSerializer serializer = new XmlSerializer(obj.GetType());
-					XmlSerializer serializer = XmlSerializer.FromTypes(new[] { typeof(T) })[0];
-					serializer.Serialize(stream, obj);
-				}
-				catch
-				{
-					throw;
-				}
-			}
-		}
-		#endregion
+            {
+                try
+                {
+                    //	XmlSerializer serializer = new XmlSerializer(obj.GetType());
+                    XmlSerializer serializer = XmlSerializer.FromTypes(new[] { typeof(T) })[0];
+                    serializer.Serialize(stream, obj);
+                }
+                catch
+                {
+                    throw;
+                }
+            }
+        }
+        #endregion
 
-		/// <summary>
-		/// 객체를 Linq XML문서형태로 변환하여 반환한다.
-		/// </summary>
-		/// <typeparam name="T">변환하고 자하는 객체의 타입</typeparam>
-		/// <param name="obj">변환하고 자하는 객체</param>
-		/// <returns>Linq XML문서</returns>
-		public static XDocument ObjectToLinqXmlDoc<T>(T obj)
+        /// <summary>
+        /// 객체를 Linq XML문서형태로 변환하여 반환한다.
+        /// </summary>
+        /// <typeparam name="T">변환하고 자하는 객체의 타입</typeparam>
+        /// <param name="obj">변환하고 자하는 객체</param>
+        /// <returns>Linq XML문서</returns>
+        public static XDocument ObjectToLinqXmlDoc<T>(T obj)
 		{
 			string xmlString = ObjectToXmlString<T>(obj);
 

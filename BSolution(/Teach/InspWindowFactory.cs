@@ -57,13 +57,16 @@ namespace BSolution_.Teach
             switch (inspWindow.InspWindowType)
             {
                 case InspWindowType.Base:
-                    inspWindow.AddInspAlgorithm(InspectType.InspBinary);
+                    inspWindow.AddInspAlgorithm(Algorithm.InspectType.InspMatch);
+                    inspWindow.AddInspAlgorithm(Algorithm.InspectType.InspBinary);
                     break;
                 case InspWindowType.Body:
-                    inspWindow.AddInspAlgorithm(InspectType.InspBinary);
+                    inspWindow.AddInspAlgorithm(Algorithm.InspectType.InspMatch);
+                    inspWindow.AddInspAlgorithm(Algorithm.InspectType.InspBinary);
                     break;
                 case InspWindowType.Sub:
-                    inspWindow.AddInspAlgorithm(InspectType.InspBinary);
+                    inspWindow.AddInspAlgorithm(Algorithm.InspectType.InspMatch);
+                    inspWindow.AddInspAlgorithm(Algorithm.InspectType.InspBinary);
                     break;
 
             }

@@ -9,10 +9,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using WeifenLuo.WinFormsUI.Docking;
 
 namespace BSolution_
 {
-    public partial class ModelTreeForm : Form
+    public partial class ModelTreeForm : DockContent
     {
         private ContextMenuStrip _contextMenu;
         public ModelTreeForm()
@@ -34,7 +35,7 @@ namespace BSolution_
 
         }
 
-        private void tvModelTree_MouseDonw(object sender, MouseEventArgs e)
+        private void tvModelTree_MouseDown(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Right)
             {
@@ -87,7 +88,5 @@ namespace BSolution_
 
             tvModelTree.ExpandAll();
         }
-    }
-}
     }
 }

@@ -24,7 +24,7 @@ namespace BSolution_.Property
     }
     public partial class BinaryProp : UserControl
     {
-        public event EventHandler<EventArgs> PropertyChanged;
+        //public event EventHandler<EventArgs> PropertyChanged;
         public event EventHandler<RangeChangedEventArgs> RangeChanged;
 
         BlobAlgorithm _blobAlgo = null;
@@ -115,7 +115,7 @@ namespace BSolution_.Property
             _blobAlgo = blobAlgo;
 
             if (_blobAlgo.BlobFilters.Count <= 0)
-                blobAlgo.SetDefalult();
+                blobAlgo.SetDefault();
 
             SetProperty();
         }
@@ -260,7 +260,7 @@ namespace BSolution_.Property
             UpdateBinary();
         }
 
-        private void dataGridViewFilter_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        private void dataGridViewFilter_CellValueChanged(object sender, DataGridViewCellEventArgs e)
         {
             if (_updateDataGridView == true)
                 UpdateDataGridView(false);

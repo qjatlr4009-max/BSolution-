@@ -1,17 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using System.Windows.Media.Animation;
-using WeifenLuo.WinFormsUI.Docking;
-using BSolution_.Core;
+﻿using BSolution_.Core;
 using BSolution_.Setting;
+using System;
+using System.Linq;
+using System.Windows.Forms;
+using WeifenLuo.WinFormsUI.Docking;
+using BSolution_.Teach;
 
 namespace BSolution_
 {
@@ -49,48 +42,42 @@ namespace BSolution_
             CameraForm cameraForm = GetDockForm<CameraForm>();
             if (cameraForm is null) return;
 
-        }
-        private void LoadDockingWindows()
-
-        {
-            _dockPanel.AllowEndUserDocking = false;
-
-            CameraForm cameraForm = new CameraForm();
-            cameraForm.Show(_dockPanel, DockState.Document);
-
-            RunForm resultForm = new RunForm();
-            resultForm.Show(cameraForm.Pane, DockAlignment.Bottom, 0.3);
-
-            var StatisticForm = new StatisticForm();
-            StatisticForm.Show(_dockPanel, DockState.DockRight);
-
-            var propForm = new PropertiesForm();
-            propForm.Show(_dockPanel, DockState.DockRight);
-
-            var LogForm = new LogForm();
-            LogForm.Show(propForm.Pane, DockAlignment.Bottom, 0.3);
-
-            var modelTreeForm = new ModelTreeForm();
-            modelTreeForm.Show(resultForm.Pane, DockAlignment.Right,0.3);
-        }
-
-
-        private void imageSaveToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            CameraForm cameraForm = GetDockForm<CameraForm>();
-            if (cameraForm is null) return;
-        
-
-        using(OpenFileDialog openFileDialog = new OpenFileDialog())
-        {
+            using (OpenFileDialog openFileDialog = new OpenFileDialog())
+            {
                 openFileDialog.Title = "이미지 파일 선택";
                 openFileDialog.Filter = "Image Files|*.bmp;*.jpg;*.jpeg;*.png;*.tif;*.tiff|All Files|*.*";
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
                     string filePath = openFileDialog.FileName;
                     cameraForm.LoadImage(openFileDialog.FileName);
+
+                    Global.Inst.InspStage.SetImageBuffer(filePath);
+                    Global.Inst.InspStage.CurModel.InspectImagePath = filePath;
                 }
             }
+        }
+
+        private void LoadDockingWindows()
+        {
+            _dockPanel.AllowEndUserDocking = false;
+
+            var cameraWindow = new CameraForm();
+            cameraWindow.Show(_dockPanel, DockState.Document);
+
+            var runWindow = new RunForm();
+            runWindow.Show(cameraWindow.Pane, DockAlignment.Bottom, 0.3);
+
+            var modelTreeWindow = new ModelTreeForm();
+            modelTreeWindow.Show(runWindow.Pane, DockAlignment.Right, 0.3);
+
+            var propWindow = new PropertiesForm();
+            propWindow.Show(_dockPanel, DockState.DockRight);
+        }
+
+        private void imageSaveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            CameraForm cameraForm = GetDockForm<CameraForm>();
+            if (cameraForm is null) return;
         }
 
         private void setupToolStripMenuItem1_Click(object sender, EventArgs e)
@@ -104,6 +91,70 @@ namespace BSolution_
             Global.Inst.Dispose();
         }
 
+        private string GetModelTitle(Model curModel)
+        {
+            if (curModel is null)
+                return "";
 
+            string modelName = curModel.ModelName;
+            return $"{Define.PPOGRAM_NAME} - MODEL : {modelName}";
+        }
+
+        private void modelNewMenuItem_Click(object sender, EventArgs e)
+        {
+            NewModel newModel = new NewModel();
+            newModel.ShowDialog();
+
+            Model curModel = Global.Inst.InspStage.CurModel;
+            if (curModel != null)
+            {
+                this.Text = GetModelTitle(curModel);
+            }
+        }
+
+        private void modelOpenMenuItem_Click(object sender, EventArgs e)
+        {
+            using (OpenFileDialog openFileDialog = new OpenFileDialog())
+            {
+                openFileDialog.Title = "모델 파일 선택";
+                openFileDialog.Filter = "Model Files|*.xml;";
+                openFileDialog.Multiselect = false;
+                openFileDialog.InitialDirectory = SettingXml.Inst.ModelDir;
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string filePath = openFileDialog.FileName;
+                    if (Global.Inst.InspStage.LoadModel(filePath))
+                    {
+                        Model curModel = Global.Inst.InspStage.CurModel;
+                        if (curModel != null)
+                        {
+                            this.Text = GetModelTitle(curModel);
+                        }
+                    }
+                }
+            }
+        }
+
+        private void modelSaveMenuItem_Click(object sender, EventArgs e)
+        {
+            Global.Inst.InspStage.SaveModel("");
+        }
+
+        private void modelSaveAsMenuItem_Click(object sender, EventArgs e)
+        {
+            using (SaveFileDialog saveFileDialog = new SaveFileDialog())
+            {
+                saveFileDialog.InitialDirectory = SettingXml.Inst.ModelDir;
+                saveFileDialog.Title = "모델 파일 선택";
+                saveFileDialog.Filter = "Model Files|*.xml;";
+                saveFileDialog.DefaultExt = "xml";
+
+                if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string filePath = saveFileDialog.FileName;
+                    Global.Inst.InspStage.SaveModel(filePath);
+                }
+            }
+        }
     }
 }

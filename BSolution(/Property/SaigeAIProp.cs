@@ -98,7 +98,7 @@ namespace BSolution_.Property
                 return;
             }
 
-            Bitmap bitmap = Global.Inst.InspStage.GetCurrentImage();
+            Bitmap bitmap = Global.Inst.InspStage.GetBitmap();
             if (bitmap == null)
             {
                 MessageBox.Show("현재 이미지가 없습니다.", "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);

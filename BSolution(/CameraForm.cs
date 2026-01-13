@@ -89,14 +89,9 @@ namespace BSolution_
             Global.Inst.InspStage.PreView.SetImage(curImage);
         }
 
-        public Bitmap GetDisplayImage()
+        public Mat GetDisplayImage()
         {
-            Bitmap curImage = null;
-
-            if (imageViewer != null)
-                curImage = imageViewer.GetCurBitmap();
-
-            return curImage;
+            return Global.Inst.InspStage.ImageSpace.GetMat();
         }
         public void UpdateImageViewer()
         {

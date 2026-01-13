@@ -27,5 +27,7 @@ namespace BSolution_.Core
     public static class Define
     {
         public static readonly string ROI_IMAGE_NAME = "RoiImage.png";
+
+        public static readonly string PPOGRAM_NAME = "BSolution";
     }
 }
