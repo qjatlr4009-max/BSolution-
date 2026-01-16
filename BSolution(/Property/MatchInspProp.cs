@@ -1,21 +1,25 @@
-﻿using System;
+﻿using BSolution_.Algorithm;
+using BSolution_.Core;
+using BSolution_.Teach;
+using BSolution_.UIControl;
+using BSolution_.Util;
+using OpenCvSharp;
+using OpenCvSharp.Extensions;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
 using System.Data;
+using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using BSolution_.Algorithm;
-using BSolution_.Core;
-using BSolution_.UIControl;
-using OpenCvSharp.Extensions;
-using OpenCvSharp;
+
 
 namespace BSolution_.Property
 {
-    public partial class MatchInspProp: UserControl
+    public partial class MatchInspProp : UserControl
     {
         public event EventHandler<EventArgs> PropertyChanged;
 
@@ -30,6 +34,7 @@ namespace BSolution_.Property
             txtScore.Leave += OnUpdateValue;
 
             patternImageEditor.ButtonChanged += PatternImage_ButtonChanged;
+
         }
 
         public void SetAlgorithm(MatchAlgorithm matchAlgo)
@@ -140,5 +145,250 @@ namespace BSolution_.Property
             }
         }
 
+
+        private bool _isAutoTeaching = false;
+
+
+
+
+        private void btnClearAutoTeach_Click(object sender, EventArgs e)
+        {
+            if (_matchAlgo is null)
+                return;
+
+
+            var cameraForm = MainForm.GetDockForm<CameraForm>();
+            if (cameraForm != null)
+                cameraForm.ResetDisplay();
+
+            var model = Global.Inst.InspStage.CurModel;
+            if (model != null && !string.IsNullOrEmpty(model.ModelPath))
+                model.Save();
+        }
+
+        private void btnAutoTeach_Click_1(object sender, EventArgs e)
+        {
+            if (_isAutoTeaching) return;
+            _isAutoTeaching = true;
+
+            try
+            {
+                if (_matchAlgo == null)
+                    return;
+
+                InspWindow win = GetSelectedInspWindowSafe();
+                if (win == null)
+                {
+                    MessageBox.Show("ROI가 선택되어 있을 때만 오토티칭이 가능합니다.");
+                    return;
+                }
+
+                win.PatternLearn();
+
+                List<Mat> templates = _matchAlgo.GetTemplateImages();
+                if (templates == null || templates.Count <= 0 || templates[0] == null || templates[0].Empty())
+                {
+                    MessageBox.Show("티칭(템플릿) 이미지가 없습니다. 먼저 티칭 이미지를 등록하세요.");
+                    return;
+                }
+
+                Mat template = templates[0];
+
+                Mat src = Global.Inst.InspStage.GetMat(0, _matchAlgo.ImageChannel);
+                if (src == null || src.Empty())
+                {
+                    MessageBox.Show("현재 이미지가 없습니다.");
+                    return;
+                }
+
+                Rect ext = win.WindowArea;
+                ext.Inflate(_matchAlgo.ExtSize);
+
+                if (ext.X < 0) ext.X = 0;
+                if (ext.Y < 0) ext.Y = 0;
+                if (ext.Right > src.Width) ext.Width = src.Width - ext.X;
+                if (ext.Bottom > src.Height) ext.Height = src.Height - ext.Y;
+
+                if (ext.Width <= 0 || ext.Height <= 0)
+                {
+                    MessageBox.Show("검색 영역(ExtArea)이 유효하지 않습니다.");
+                    return;
+                }
+
+                List<OpenCvSharp.Point> points;
+                List<int> scores;
+
+                using (Mat target = src[ext])
+                {
+                    int cnt = _matchAlgo.MatchTemplateMultiple(target, ext.TopLeft, out points, out scores);
+                    if (cnt <= 0)
+                    {
+                        MessageBox.Show("오토티칭 결과가 없습니다.");
+                        _matchAlgo.AutoTeachResults.Clear();
+                        return;
+                    }
+
+                    _matchAlgo.AutoTeachRois.Clear();
+                    _matchAlgo.AutoTeachScores.Clear();
+
+                    int w = template.Width;
+                    int h = template.Height;
+
+                    for (int i = 0; i < points.Count; i++)
+                    {
+                        var p = points[i];
+                        int sc = (i < scores.Count) ? scores[i] : 0;
+
+                        _matchAlgo.AutoTeachRois.Add(new OpenCvSharp.Rect(p.X, p.Y, w, h));
+                        _matchAlgo.AutoTeachScores.Add(sc);
+                    }
+
+                    Slogger.Write($"AutoTeachRois Count = " + _matchAlgo.AutoTeachRois.Count);
+                }
+
+                _matchAlgo.AutoTeachResults.Clear();
+
+                int tw = template.Width;
+                int th = template.Height;
+
+                List<DrawInspectInfo> rectInfos = new List<DrawInspectInfo>();
+
+                for (int i = 0; i < points.Count; i++)
+                {
+                    OpenCvSharp.Point p = points[i];
+                    int sc = (i < scores.Count) ? scores[i] : 0;
+
+                    _matchAlgo.AutoTeachResults.Add(new AutoTeach(p.X, p.Y, tw, th, sc));
+
+                    Rect r = new Rect(p.X, p.Y, tw, th);
+                    string info = string.Format("{0}%", sc);
+
+                    rectInfos.Add(new DrawInspectInfo(r, info, InspectType.InspMatch, DecisionType.None));
+                }
+
+                CameraForm cam = MainForm.GetDockForm<CameraForm>();
+                if (cam != null)
+                {
+                    cam.ResetDisplay();
+                    cam.AddRect(rectInfos);
+                }
+
+                Model model = Global.Inst.InspStage.CurModel;
+                if (model != null && !string.IsNullOrEmpty(model.ModelPath))
+                    model.Save();
+
+                MessageBox.Show(string.Format("오토티칭 완료: {0}개", points.Count));
+            }
+            finally
+            {
+                _isAutoTeaching = false;
+            }
+        }
+
+
+        private InspWindow GetSelectedInspWindowSafe()
+        {
+            return Global.Inst.InspStage.SelectedInspWindow;
+        }
+
+        private void btnApplyAutoTeachRoi_Click(object sender, EventArgs e)
+        {
+            var model = Global.Inst.InspStage.CurModel;
+
+            if (string.IsNullOrEmpty(model.ModelFilePath))
+            {
+                MessageBox.Show("모델을 먼저 저장하거나 로드한 뒤 ROI 적용 가능");
+                return;
+
+                string modelDir = Path.GetDirectoryName(model.ModelFilePath);
+                string teachDir = Path.Combine(modelDir, "Teach");
+                Directory.CreateDirectory(teachDir);
+            }
+            {
+                if (_matchAlgo == null)
+                    return;
+
+                var srcAlgo = _matchAlgo;
+                int createdCount = srcAlgo.AutoTeachRois.Count;
+
+                if (_matchAlgo.AutoTeachRois == null || _matchAlgo.AutoTeachRois.Count == 0)
+                {
+                    MessageBox.Show("오토티칭 결과가 없습니다. 먼저 오토티칭을 실행하세요.");
+                    return;
+                }
+
+
+                var rois = srcAlgo.AutoTeachRois.ToList();
+
+                InspWindow selected = Global.Inst.InspStage.SelectedInspWindow;
+                if (selected == null)
+                {
+                    MessageBox.Show("ROI가 선택된 상태에서만 적용할 수 있습니다.");
+                    return;
+                }
+
+                InspWindowType windowType = selected.InspWindowType;
+
+                foreach (var r in _matchAlgo.AutoTeachRois)
+                {
+                    Global.Inst.InspStage.AddInspWindowFromAutoTeach(windowType, r);
+                }
+
+                Global.Inst.InspStage.UpdateDiagramEntity();
+                Global.Inst.InspStage.RedrawMainView();
+
+                var model = Global.Inst.InspStage.CurModel;
+                if (model != null && !string.IsNullOrEmpty(model.ModelPath))
+                    model.Save();
+
+                MessageBox.Show(string.Format("ROI 적용 완료 : {0}개 생성", createdCount));
+
+                Slogger.Write($"ROI : {createdCount}개 생성");
+
+            }
+        }
+
+        private static OpenCvSharp.Rect ClampRect(OpenCvSharp.Rect r, OpenCvSharp.Mat img)
+        {
+            int x = Math.Max(0, r.X);
+            int y = Math.Max(0, r.Y);
+
+            int right = Math.Min(img.Width, r.Right);
+            int bottom = Math.Min(img.Height, r.Bottom);
+
+            int w = right - x;
+            int h = bottom - y;
+
+            // 비어있음 처리: 너비/높이가 0 이하
+            if (w <= 0 || h <= 0)
+                return new OpenCvSharp.Rect(0, 0, 0, 0);
+
+            return new OpenCvSharp.Rect(x, y, w, h);
+        }
+
+        private static bool SaveTeachTemplate(OpenCvSharp.Mat src, OpenCvSharp.Rect roi, string savePath)
+        {
+            OpenCvSharp.Rect r = ClampRect(roi, src);
+
+            // Rect.Empty 대신 Width/Height로 검사
+            if (r.Width <= 0 || r.Height <= 0)
+                return false;
+
+            using (var crop = new OpenCvSharp.Mat(src, r))
+            using (var gray = new OpenCvSharp.Mat())
+            {
+                if (crop.Type() == OpenCvSharp.MatType.CV_8UC3)
+                    OpenCvSharp.Cv2.CvtColor(crop, gray, OpenCvSharp.ColorConversionCodes.BGR2GRAY);
+                else
+                    crop.CopyTo(gray);
+
+                System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(savePath));
+                return OpenCvSharp.Cv2.ImWrite(savePath, gray);
+            }
+        }
+
+
     }
 }
+
+

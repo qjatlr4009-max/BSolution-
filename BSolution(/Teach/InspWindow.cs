@@ -1,5 +1,7 @@
 ﻿using BSolution_.Algorithm;
 using BSolution_.Core;
+using BSolution_.Inspect;
+using BSolution_.Util;
 using OpenCvSharp;
 using System;
 using System.Collections.Generic;
@@ -17,6 +19,7 @@ namespace BSolution_.Teach
     {
         public InspWindowType InspWindowType { get; set; }
 
+        public List<string> TeachImagePaths { get; set; } = new List<string>();
         public string Name { get; set; }
         public string UID { get; set; }
 
@@ -26,7 +29,9 @@ namespace BSolution_.Teach
 
         [XmlElement("InspAlgorithm")]
         public List<InspAlgorithm> AlgorithmList { get; set; } = new List<InspAlgorithm>();
-        
+
+        public List<InspResult> InspResultList { get; set; } = new List<InspResult>();
+
         [XmlIgnore]
         public List<Mat> _windowImages = new List<Mat>();
 
@@ -93,15 +98,26 @@ namespace BSolution_.Teach
 
         public bool PatternLearn()
         {
+            
+
             if (IsPatternLearn == true)
                 return true;
 
+            LoadTeachImagesIfNeeded();
+
             foreach (var algorithm in AlgorithmList)
             {
-                if (algorithm.InspectType != Algorithm.InspectType.InspMatch)
+                if (algorithm.InspectType != InspectType.InspMatch)
                     continue;
 
                 MatchAlgorithm matchAlgo = (MatchAlgorithm)algorithm;
+
+                if (_windowImages == null || _windowImages.Count == 0)
+                {
+                    Slogger.Write("PatternLearn Skipped : No Teach Images.");
+                    continue;
+                }
+
                 matchAlgo.ResetTemplateImages();
 
                 for (int i = 0; i < _windowImages.Count; i++)
@@ -129,17 +145,60 @@ namespace BSolution_.Teach
             return true;
         }
 
-        public bool AddInspAlgorithm(Algorithm.InspectType inspType)
+        public void LoadTeachImagesIfNeeded()
+        {
+            // 이미 로드되어 있으면 다시 로드하지 않음
+            if (_windowImages != null && _windowImages.Count > 0)
+                return;
+
+            if (TeachImagePaths == null || TeachImagePaths.Count == 0)
+                return;
+
+            if (_windowImages == null)
+                _windowImages = new List<Mat>();
+
+            foreach (var path in TeachImagePaths)
+            {
+                if (string.IsNullOrWhiteSpace(path))
+                    continue;
+
+                if (!File.Exists(path))
+                {
+                    Slogger.Write($"Teach image not found: {path}");
+                    continue;
+                }
+
+                try
+                {
+                    // 그레이로 강제 로드(DoInspect 컬러 금지 정책 대응)
+                    Mat img = Cv2.ImRead(path, ImreadModes.Grayscale);
+                    if (img.Empty())
+                    {
+                        Slogger.Write($"Teach image load failed(empty): {path}");
+                        continue;
+                    }
+
+                    _windowImages.Add(img);
+                }
+                catch (Exception ex)
+                {
+                    Slogger.Write($"Teach image load exception: {path}, {ex.Message}");
+                }
+            }
+        }
+
+
+        public bool AddInspAlgorithm(InspectType inspType)
         {
             InspAlgorithm inspAlgo = null;
 
             switch (inspType)
             {
-                case Algorithm.InspectType.InspBinary:
+                case InspectType.InspBinary:
                     inspAlgo = new BlobAlgorithm();
                     break;
 
-                case Algorithm.InspectType.InspMatch:
+                case InspectType.InspMatch:
                     inspAlgo = new MatchAlgorithm();
                     break;
             }
@@ -152,16 +211,16 @@ namespace BSolution_.Teach
             return true;
         }
 
-        public InspAlgorithm FindInspAlgorithm(Algorithm.InspectType inspType)
+        public InspAlgorithm FindInspAlgorithm(InspectType inspType)
         {
             return AlgorithmList.Find(algo => algo.InspectType == inspType);
         }
 
-        public virtual bool DoInpsect(Algorithm.InspectType inspType)
+        public virtual bool DoInpsect(InspectType inspType)
         {
             foreach (var inspAlgo in AlgorithmList)
             {
-                if (inspAlgo.InspectType == inspType || inspType == Algorithm.InspectType.InspNone)
+                if (inspAlgo.InspectType == inspType || inspType == InspectType.InspNone)
                     inspAlgo.DoInspect();
             }
 
@@ -255,6 +314,21 @@ namespace BSolution_.Teach
             }
 
             return true;
+        }
+
+        public void ResetInspResult()
+        {
+            foreach (var algorithm in AlgorithmList)
+            {
+                algorithm.ResetResult();
+            }
+
+            InspResultList.Clear();
+        }
+
+        public void AddInspResult(InspResult inspResult)
+        {
+            InspResultList.Add(inspResult);
         }
     }
 }

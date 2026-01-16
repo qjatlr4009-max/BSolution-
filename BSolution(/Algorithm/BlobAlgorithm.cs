@@ -1,5 +1,4 @@
 ﻿using OpenCvSharp;
-using SaigeVision.Net.V2;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

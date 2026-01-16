@@ -1,4 +1,5 @@
-﻿using MvCameraControl;
+﻿using BSolution_.Util;
+using MvCameraControl;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -66,12 +67,18 @@ namespace BSolution_.Grab
         internal bool InitGrab()
 
         {
+            Slogger.Write("Grab 초기화 시작");
+
             if (!Create())
                 return false;
 
             if (!Open())
+            {
+                if (!Reconnect())
                 return false;
+            }
 
+            Slogger.Write("Grab 초기화 성공");
             return true;
         }
 

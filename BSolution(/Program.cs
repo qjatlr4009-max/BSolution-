@@ -1,5 +1,7 @@
-﻿using System;
+﻿using BSolution_.Util;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -14,6 +16,10 @@ namespace BSolution_
         [STAThread]
         static void Main()
         {
+
+            log4net.Config.XmlConfigurator.Configure(new FileInfo("log4net.config"));
+            Slogger.Write("Logger initalized", Slogger.LogType.Info);
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new MainForm());

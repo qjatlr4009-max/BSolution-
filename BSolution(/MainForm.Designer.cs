@@ -32,12 +32,14 @@
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripMenuItem();
-            this.setupToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.setupToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.modelNewMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.modelOpenMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.modelSaveMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.modelSaveAsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.setupToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.setupToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.inspectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.cycleModeMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -47,7 +49,8 @@
             this.menuStrip.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.menuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripMenuItem1,
-            this.setupToolStripMenuItem});
+            this.setupToolStripMenuItem,
+            this.inspectToolStripMenuItem});
             this.menuStrip.Location = new System.Drawing.Point(0, 0);
             this.menuStrip.Name = "menuStrip";
             this.menuStrip.Size = new System.Drawing.Size(1647, 33);
@@ -70,16 +73,44 @@
             // toolStripMenuItem2
             // 
             this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-            this.toolStripMenuItem2.Size = new System.Drawing.Size(270, 34);
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(237, 34);
             this.toolStripMenuItem2.Text = "Image Open";
             this.toolStripMenuItem2.Click += new System.EventHandler(this.imageOpenToolStripMenuItem_Click);
             // 
             // toolStripMenuItem3
             // 
             this.toolStripMenuItem3.Name = "toolStripMenuItem3";
-            this.toolStripMenuItem3.Size = new System.Drawing.Size(270, 34);
+            this.toolStripMenuItem3.Size = new System.Drawing.Size(237, 34);
             this.toolStripMenuItem3.Text = "Image Save";
             this.toolStripMenuItem3.Click += new System.EventHandler(this.imageSaveToolStripMenuItem_Click);
+            // 
+            // modelNewMenuItem
+            // 
+            this.modelNewMenuItem.Name = "modelNewMenuItem";
+            this.modelNewMenuItem.Size = new System.Drawing.Size(237, 34);
+            this.modelNewMenuItem.Text = "Model New";
+            this.modelNewMenuItem.Click += new System.EventHandler(this.modelNewMenuItem_Click);
+            // 
+            // modelOpenMenuItem
+            // 
+            this.modelOpenMenuItem.Name = "modelOpenMenuItem";
+            this.modelOpenMenuItem.Size = new System.Drawing.Size(237, 34);
+            this.modelOpenMenuItem.Text = "Model Open";
+            this.modelOpenMenuItem.Click += new System.EventHandler(this.modelOpenMenuItem_Click);
+            // 
+            // modelSaveMenuItem
+            // 
+            this.modelSaveMenuItem.Name = "modelSaveMenuItem";
+            this.modelSaveMenuItem.Size = new System.Drawing.Size(237, 34);
+            this.modelSaveMenuItem.Text = "Model Save";
+            this.modelSaveMenuItem.Click += new System.EventHandler(this.modelSaveMenuItem_Click);
+            // 
+            // modelSaveAsMenuItem
+            // 
+            this.modelSaveAsMenuItem.Name = "modelSaveAsMenuItem";
+            this.modelSaveAsMenuItem.Size = new System.Drawing.Size(237, 34);
+            this.modelSaveAsMenuItem.Text = "Model Save As";
+            this.modelSaveAsMenuItem.Click += new System.EventHandler(this.modelSaveAsMenuItem_Click);
             // 
             // setupToolStripMenuItem
             // 
@@ -96,33 +127,21 @@
             this.setupToolStripMenuItem1.Text = "Setup";
             this.setupToolStripMenuItem1.Click += new System.EventHandler(this.setupToolStripMenuItem1_Click);
             // 
-            // modelNewMenuItem
+            // inspectToolStripMenuItem
             // 
-            this.modelNewMenuItem.Name = "modelNewMenuItem";
-            this.modelNewMenuItem.Size = new System.Drawing.Size(270, 34);
-            this.modelNewMenuItem.Text = "Model New";
-            this.modelNewMenuItem.Click += new System.EventHandler(this.modelNewMenuItem_Click);
+            this.inspectToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.cycleModeMenuItem});
+            this.inspectToolStripMenuItem.Name = "inspectToolStripMenuItem";
+            this.inspectToolStripMenuItem.Size = new System.Drawing.Size(87, 29);
+            this.inspectToolStripMenuItem.Text = "Inspect";
             // 
-            // modelOpenMenuItem
+            // cycleModeMenuItem
             // 
-            this.modelOpenMenuItem.Name = "modelOpenMenuItem";
-            this.modelOpenMenuItem.Size = new System.Drawing.Size(270, 34);
-            this.modelOpenMenuItem.Text = "Model Open";
-            this.modelOpenMenuItem.Click += new System.EventHandler(this.modelOpenMenuItem_Click);
-            // 
-            // modelSaveMenuItem
-            // 
-            this.modelSaveMenuItem.Name = "modelSaveMenuItem";
-            this.modelSaveMenuItem.Size = new System.Drawing.Size(270, 34);
-            this.modelSaveMenuItem.Text = "Model Save";
-            this.modelSaveMenuItem.Click += new System.EventHandler(this.modelSaveMenuItem_Click);
-            // 
-            // modelSaveAsMenuItem
-            // 
-            this.modelSaveAsMenuItem.Name = "modelSaveAsMenuItem";
-            this.modelSaveAsMenuItem.Size = new System.Drawing.Size(270, 34);
-            this.modelSaveAsMenuItem.Text = "Model Save As";
-            this.modelSaveAsMenuItem.Click += new System.EventHandler(this.modelSaveAsMenuItem_Click);
+            this.cycleModeMenuItem.CheckOnClick = true;
+            this.cycleModeMenuItem.Name = "cycleModeMenuItem";
+            this.cycleModeMenuItem.Size = new System.Drawing.Size(270, 34);
+            this.cycleModeMenuItem.Text = "Cycle Mode";
+            this.cycleModeMenuItem.Click += new System.EventHandler(this.cycleModeMenuItem_Click);
             // 
             // MainForm
             // 
@@ -152,5 +171,7 @@
         private System.Windows.Forms.ToolStripMenuItem modelOpenMenuItem;
         private System.Windows.Forms.ToolStripMenuItem modelSaveMenuItem;
         private System.Windows.Forms.ToolStripMenuItem modelSaveAsMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem inspectToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem cycleModeMenuItem;
     }
 }

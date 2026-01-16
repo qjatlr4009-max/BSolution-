@@ -7,12 +7,22 @@ using System.Threading.Tasks;
 namespace BSolution_.Core
 {
 
+    public enum InspectType
+    {
+        InspNone = -1,
+        InspBinary,
+        InspFilter,
+        InspMatch,
+        InspAIModule,
+        InspCount
+    }
     public enum InspWindowType
     {
         None = 0,
         Base,
         Body,
-        Sub
+        Sub,
+        ID
     }
     public enum DecisionType
     {
@@ -22,6 +32,14 @@ namespace BSolution_.Core
         Info,
         Error,
         Timeout
+    }
+
+    public enum WorkingState
+    {
+        NONE = 0,
+        INSPECT,
+        LIVE,
+        ALARM
     }
 
     public static class Define

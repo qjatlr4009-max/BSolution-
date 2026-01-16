@@ -1,4 +1,5 @@
 ﻿using BSolution_.Grab;
+using BSolution_.Util;
 using MvCameraControl;
 using System;
 using System.Collections.Generic;
@@ -7,6 +8,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Navigation;
+using System.Windows.Forms;
 
 namespace BSolution_.Grab
 {
@@ -19,9 +21,9 @@ namespace BSolution_.Grab
         // 이미지 취득 콜백함수
         void FrameGrabedEventHandler(object sender, FrameGrabbedEventArgs e)
         {
-            Console.WriteLine("Get one frame : Width[{0}], Height[{1}] , ImageSize[{2}] , FrameNum[{3}]",
-                e.FrameOut.Image.Width, e.FrameOut.Image.Height,
-                e.FrameOut.Image.ImageSize, e.FrameOut.FrameNum);
+            //Slogger.Write("Get one frame : Width[{0}], Height[{1}] , ImageSize[{2}] , FrameNum[{3}]",
+            //    e.FrameOut.Image.Width, e.FrameOut.Image.Height,
+            //    e.FrameOut.Image.ImageSize, e.FrameOut.FrameNum);
 
             IFrameOut frameOut = e.FrameOut;
 
@@ -48,7 +50,7 @@ namespace BSolution_.Grab
                     int result = _device.PixelTypeConverter.ConvertPixelType(inputImage, out outImage, dstPixelType);
                     if (result != MvError.MV_OK)
                     {
-                        Console.WriteLine("Image Convert failed:{0:X8}", result);
+                        Slogger.Write($"Image Convert failed:{result:x8}", Slogger.LogType.Error);
                         return;
                     }
 
@@ -89,11 +91,11 @@ namespace BSolution_.Grab
                 int ret = DeviceEnumerator.EnumDevices(devLayerType, out devInfoList);
                 if (ret != MvError.MV_OK)
                 {
-                    Console.WriteLine("Enum device failed:{0:x8}", ret);
+                    Slogger.Write($"Enum device failed:{ret:x8}", Slogger.LogType.Error);
                     return false;
                 }
 
-                Console.WriteLine("Enum device count : {0}", devInfoList.Count);
+                Slogger.Write($"Enum device count : {devInfoList.Count}");
 
                 if (0 == devInfoList.Count)
                 {
@@ -115,7 +117,7 @@ namespace BSolution_.Grab
                         uint nIp4 = (gigeDevInfo.CurrentIp & 0x000000ff);
 
                         string strIP = nIp1 + "." + nIp2 + "." + nIp3 + "." + nIp4;
-                        Console.WriteLine("DevIP" + strIP);
+                        Slogger.Write($"Device {devIndex}, DevIP : " + strIP);
 
                         if (_strIpAddr is null || strIP == strIpAddr)
                         {
@@ -124,15 +126,14 @@ namespace BSolution_.Grab
                         }
                     }
 
-                    Console.WriteLine("ModelName:" + devInfo.ModelName);
-                    Console.WriteLine("SerialNumber:" + devInfo.SerialNumber);
-                    Console.WriteLine();
+                    Slogger.Write("ModelName:" + devInfo.ModelName);
+                    Slogger.Write("SerialNumber:" + devInfo.SerialNumber);
                     devIndex++;
                 }
 
                 if (selDevIndex < 0 || selDevIndex > devInfoList.Count - 1)
                 {
-                    Console.WriteLine("Invalid selected device number:{0}", selDevIndex);
+                    Slogger.Write($"Invalid selected device number:{selDevIndex}", Slogger.LogType.Error);
                     return false;
                 }
 
@@ -193,7 +194,8 @@ namespace BSolution_.Grab
                     if (ret != MvError.MV_OK)
                     {
                         _device.Dispose();
-                        Console.WriteLine("Open device failed!", ret);
+                        Slogger.Write("Open device failed!", Slogger.LogType.Error);
+                        MessageBox.Show($"Device open fail! {ret:X8}");
                         return false;
                     }
 
@@ -206,22 +208,22 @@ namespace BSolution_.Grab
                             ret = _device.Parameters.SetIntValue("GevSCPSPacketSize", packetSize);
                             if (ret != MvError.MV_OK)
                             {
-                                Console.WriteLine("Warning: Set Packet Size failed {0:x8}", ret);
+                                Slogger.Write($"Warning: Set Packet Size failed {ret:x8}", Slogger.LogType.Error);
                             }
                             else
                             {
-                                Console.WriteLine("Set PacketSize to {0}", packetSize);
+                                Slogger.Write($"Set PacketSize to {packetSize}");
                             }
                         }
                         else
                         {
-                            Console.WriteLine("Warning: Get Packet Size failed {0:x8}", ret);
+                            Slogger.Write($"Warning: Get Packet Size failed {ret:x8}", Slogger.LogType.Error);
                         }
                     }
                     ret = _device.Parameters.SetEnumValue("TriggerMode", 1);
                     if (ret != MvError.MV_OK)
                     {
-                        Console.WriteLine("Set TriggerMode failed:{0:x8}", ret);
+                        Slogger.Write($"Set Exposure Time Fail:{ret:x8}", Slogger.LogType.Error);
                         return false;
                     }
 
@@ -241,14 +243,14 @@ namespace BSolution_.Grab
                     ret = _device.StreamGrabber.StartGrabbing();
                     if (ret != MvError.MV_OK)
                     {
-                        Console.WriteLine("Start grabbing failed:{0:x8}", ret);
+                        Slogger.Write("Start grabbing failed:{0:x8}", Slogger.LogType.Error);
                         return false;
                     }
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
+                Slogger.Write(ex.ToString(), Slogger.LogType.Error);
                 return false;
             }
             return true;
@@ -257,7 +259,7 @@ namespace BSolution_.Grab
         {
             if (_device != null)
             {
-                Console.WriteLine("_camera is null");
+                Slogger.Write("_camera is null", Slogger.LogType.Error);
                 return false;
             }
             Close();
@@ -325,7 +327,7 @@ namespace BSolution_.Grab
             int result = _device.Parameters.SetFloatValue("Gain", gain);
             if (result != MvError.MV_OK)
             {
-                Console.WriteLine("Set Gain Failed!", result);
+                Slogger.Write($"Set Gain Fail:{result:x8}", Slogger.LogType.Error);
                 return false;
             }
 
@@ -364,7 +366,7 @@ namespace BSolution_.Grab
             result = _device.Parameters.GetIntValue("Width", out intValue);
             if (result != MvError.MV_OK)
             {
-                Console.WriteLine("Get Width Failed!", result);
+                Slogger.Write($"Get Width Fail:{result:x8}", Slogger.LogType.Error);
                 return false;
             }
             width = (int)intValue.CurValue;
@@ -372,7 +374,7 @@ namespace BSolution_.Grab
             result = _device.Parameters.GetIntValue("Height", out intValue);
             if (result != MvError.MV_OK)
             {
-                Console.WriteLine("Get Height Failed!", result);
+                Slogger.Write($"Get Height Fail:{result:x8}", Slogger.LogType.Error);
                 return false;
             }
             height = (int)intValue.CurValue;
@@ -380,7 +382,7 @@ namespace BSolution_.Grab
             result = _device.Parameters.GetEnumValue("PixelFormat", out enumValue);
             if (result != MvError.MV_OK)
             {
-                Console.WriteLine("Get PixelFormat failed nRet:{0:X8}", result);
+                Slogger.Write($"Get PixelFormat Fail:{result:x8}", Slogger.LogType.Error);
                 return false;
             }
 

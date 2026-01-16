@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using BSolution_.Grab;
+using BSolution_.Util;
 
 namespace BSolution_.Setting
 {
@@ -31,6 +32,8 @@ namespace BSolution_.Setting
             SettingXml.Inst.ModelDir = txtModelDir.Text;
             SettingXml.Inst.ImageDir = txtImageDir.Text;
             SettingXml.Save();
+
+            Slogger.Write($"경로 설정 저장");
         }
 
         private void btnSelModelDir_Click(object sender, EventArgs e)

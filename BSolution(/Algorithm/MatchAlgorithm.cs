@@ -1,4 +1,5 @@
 ﻿using BSolution_.Core;
+using BSolution_.Util;
 using OpenCvSharp;
 using System;
 using System.Collections.Generic;
@@ -12,9 +13,18 @@ namespace BSolution_.Algorithm
 {
     public class MatchAlgorithm : InspAlgorithm
     {
+        [XmlIgnore]
+        public List<OpenCvSharp.Rect> AutoTeachRois { get; private set; } = new List<OpenCvSharp.Rect>();
+
+        [XmlIgnore]
+        public List<int> AutoTeachScores { get; private set; } = new List<int>();
 
         [XmlIgnore]
         private List<Mat> _templateImages = new List<Mat>();
+       
+        [XmlIgnore]
+        public List<AutoTeach> AutoTeachResults { get; set; } = new List<AutoTeach>();
+
 
         public int MatchScore { get; set; } = 60;
 
@@ -28,10 +38,17 @@ namespace BSolution_.Algorithm
 
         public List<Point> OutPoints { get; set; } = new List<Point>();
 
+        public List<AutoTeach> AutoTeaches { get; set; } = new List<AutoTeach>();
 
+        public void ClearAutoTeaches()
+        {
+            AutoTeaches.Clear();
+        }
         public int MatchCount { get; set; } = 1;
 
-        private int _scanStep = 8;
+        public int _scanstep { get; set; } = 1;
+
+        private int _scanStep = 1;
 
         public MatchAlgorithm()
         {
@@ -101,7 +118,7 @@ namespace BSolution_.Algorithm
             OutScore = (int)(maxScore * 100);
             OutPoint = maxLoc + leftTopPos;
 
-            Console.Write($"최적 매칭 위치: {maxLoc}, 신뢰도: {maxScore:F2}");
+            Slogger.Write($"최적 매칭 위치: {maxLoc}, 신뢰도: {maxScore:F2}");
 
             return true;
         }
@@ -118,7 +135,6 @@ namespace BSolution_.Algorithm
             float matchThreshold = MatchScore / 100.0f;
             Mat result = new Mat();
 
-            // 템플릿 매칭 수행 (정규화된 상관 계수 방식)
             Cv2.MatchTemplate(image, _templateImages[0], result, TemplateMatchModes.CCoeffNormed);
 
             List<Rect> detectedRegions = new List<Rect>();
@@ -128,7 +144,6 @@ namespace BSolution_.Algorithm
             int halfWidth = templateWidth / 2;
             int halfHeight = templateHeight / 2;
 
-            // 결과 행렬을 스캔 (SCAN 간격 적용)
             for (int y = 0; y < result.Rows; y += _scanStep)
             {
                 for (int x = 0; x < result.Cols; x += _scanStep)
@@ -140,7 +155,6 @@ namespace BSolution_.Algorithm
 
                     Point matchLoc = new Point(x, y);
 
-                    // 기존 매칭된 위치들과 겹치는지 확인
                     bool overlaps = false;
                     foreach (var rect in detectedRegions)
                     {
@@ -155,8 +169,6 @@ namespace BSolution_.Algorithm
 
                     Point bestPoint = matchLoc;
 
-                    // 수직 & 수평 검색 수행하여 가장 좋은 위치 찾기
-                    // 수직 검색 (위->아래)
                     int indexR = bestPoint.Y;
                     bool isFindVert = false;
                     while (true)
@@ -181,7 +193,6 @@ namespace BSolution_.Algorithm
                     if (!isFindVert)
                         continue;
 
-                    // 수평 검색 (좌->우)
                     int indexC = bestPoint.X;
                     bool isFindHorz = false;
                     while (true)
@@ -217,7 +228,108 @@ namespace BSolution_.Algorithm
             return matchedPositions.Count;
         }
 
-        //매칭 알고리즘 검사 구현
+        public int MatchTemplateMultiple( Mat image,
+    Point leftTopPos,
+    out List<Point> matchedPositions,
+    out List<int> matchedScores)
+        {
+            matchedPositions = new List<Point>();
+            matchedScores = new List<int>();
+
+            if (_templateImages.Count <= 0)
+                return 0;
+
+            float matchThreshold = MatchScore / 100.0f;
+
+            using (Mat result = new Mat())
+            {
+                Cv2.MatchTemplate(image, _templateImages[0], result, TemplateMatchModes.CCoeffNormed);
+                 
+
+                List<Rect> detectedRegions = new List<Rect>();
+                int templateWidth = _templateImages[0].Width;
+                int templateHeight = _templateImages[0].Height;
+                int halfWidth = templateWidth / 2;
+                int halfHeight = templateHeight / 2;
+
+                for (int y = 0; y < result.Rows; y += _scanStep)
+                {
+                    for (int x = 0; x < result.Cols; x += _scanStep)
+                    {
+                        float score = result.At<float>(y, x);
+                        if (score < matchThreshold)
+                            continue;
+
+                        Point matchLoc = new Point(x, y);
+
+                        bool overlaps = false;
+                        foreach (var rect in detectedRegions)
+                        {
+                            if (rect.Contains(matchLoc))
+                            {
+                                overlaps = true;
+                                break;
+                            }
+                        }
+                        if (overlaps)
+                            continue;
+
+                        Point bestPoint = matchLoc;
+
+                        // refinement (기존 코드 그대로)
+                        int indexR = bestPoint.Y;
+                        bool isFindVert = false;
+                        while (true)
+                        {
+                            indexR++;
+                            if (indexR >= result.Rows) break;
+
+                            float candidateScore = result.At<float>(indexR, bestPoint.X);
+                            if (score > candidateScore)
+                            {
+                                isFindVert = true;
+                                break;
+                            }
+                            score = candidateScore;
+                            bestPoint.Y++;
+                        }
+                        if (!isFindVert) continue;
+
+                        int indexC = bestPoint.X;
+                        bool isFindHorz = false;
+                        while (true)
+                        {
+                            indexC++;
+                            if (indexC >= result.Cols) break;
+
+                            float candidateScore = result.At<float>(bestPoint.Y, indexC);
+                            if (score > candidateScore)
+                            {
+                                isFindHorz = true;
+                                break;
+                            }
+                            score = candidateScore;
+                            bestPoint.X++;
+                        }
+                        if (!isFindHorz) continue;
+
+                        // 최종 좌표(원본 기준)
+                        Point matchPos = bestPoint + leftTopPos;
+
+                        matchedPositions.Add(matchPos);
+                        matchedScores.Add((int)(score * 100.0f + 0.5f));
+
+                        detectedRegions.Add(new Rect(bestPoint.X - halfWidth, bestPoint.Y - halfHeight, templateWidth, templateHeight));
+                    }
+                }
+            }
+
+            return matchedPositions.Count;
+        }
+
+
+
+
         public override bool DoInspect()
         {
             ResetResult();
@@ -333,7 +445,7 @@ namespace BSolution_.Algorithm
 
             foreach (var point in OutPoints)
             {
-                Console.Write($"매칭된 위치: {OutPoints}");
+                Slogger.Write($"매칭된 위치: {OutPoints}");
                 resultArea.Add(new DrawInspectInfo(new Rect(point.X, point.Y, _templateImages[0].Width, _templateImages[0].Height),
                     info, InspectType.InspMatch, decisionType));
             }

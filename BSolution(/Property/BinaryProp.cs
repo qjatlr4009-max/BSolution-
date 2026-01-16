@@ -1,5 +1,6 @@
 ﻿using BSolution_.Algorithm;
 using BSolution_.Core;
+using OpenCvSharp;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -7,10 +8,12 @@ using System.Configuration;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.Remoting.Channels;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static BSolution_.Algorithm.BinaryThreshold;
+
 
 namespace BSolution_.Property
 {
@@ -25,6 +28,8 @@ namespace BSolution_.Property
     public partial class BinaryProp : UserControl
     {
         //public event EventHandler<EventArgs> PropertyChanged;
+
+        public event EventHandler<ImageChannelEventArgs> ImageChannelChanged;
         public event EventHandler<RangeChangedEventArgs> RangeChanged;
 
         BlobAlgorithm _blobAlgo = null;
@@ -51,6 +56,12 @@ namespace BSolution_.Property
 
             binRangeTrackbar.ValueLeft = 100;
             binRangeTrackbar.ValueRight = 200;
+
+            cbChannel.Items.Add("Gray");
+            cbChannel.Items.Add("Red");
+            cbChannel.Items.Add("Green");
+            cbChannel.Items.Add("Blue");
+            cbChannel.SelectedIndex = 0;
 
             cbHighlight.Items.Add("사용안함");
             cbHighlight.Items.Add("빨간색");
@@ -257,6 +268,11 @@ namespace BSolution_.Property
 
         private void cbHighlight_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (_blobAlgo is null)
+                return;
+
+            _blobAlgo.ImageChannel = (eImageChannel)cbChannel.SelectedIndex + 1;
+            ImageChannelChanged?.Invoke(this, new ImageChannelEventArgs(_blobAlgo.ImageChannel));
             UpdateBinary();
         }
 
@@ -322,6 +338,27 @@ namespace BSolution_.Property
             }
         }
 
+        private void lbHighlight_Click(object sender, EventArgs e)
+        {
 
+        }
+        private void cbChannel_SeletedIndexChanged(object sender, EventArgs e)
+        {
+            if (_blobAlgo is null)
+                return;
+
+            _blobAlgo.ImageChannel = (eImageChannel)cbChannel.SelectedIndex + 1;
+            ImageChannelChanged?.Invoke(this, new ImageChannelEventArgs(_blobAlgo.ImageChannel));
+        }
+        public class ImageChannelEventArgs : EventArgs
+        {
+            public eImageChannel Channel { get; }
+            public int UpperValue { get; }
+            public bool Invert { get; }
+            public ShowBinaryMode ShowBinMode { get; }
+
+            public ImageChannelEventArgs(eImageChannel channel)
+            { Channel = channel; }
+        }
     }
 }

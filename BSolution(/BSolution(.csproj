@@ -56,9 +56,17 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="log4net, Version=2.0.15.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\x64\Debug\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="MvCameraControl.Net, Version=4.6.0.0, Culture=neutral, PublicKeyToken=a3c7c5e3a730cd12, processorArchitecture=AMD64">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>D:\11.05 KBS\BSolution(\BSolution(\bin\Debug\MvCameraControl.Net.dll</HintPath>
+    </Reference>
+    <Reference Include="ObjectListView, Version=2.9.1.1072, Culture=neutral, PublicKeyToken=b1c5bf581481bcd4, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\x64\Debug\ObjectListView.dll</HintPath>
     </Reference>
     <Reference Include="OpenCvSharp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=6adad1e807fea099, processorArchitecture=MSIL">
       <HintPath>..\packages\OpenCvSharp4.4.11.0.20250507\lib\net48\OpenCvSharp.dll</HintPath>
@@ -70,11 +78,11 @@
     <Reference Include="PresentationFramework" />
     <Reference Include="SaigeVision.Net.Core.V2, Version=2.5.0.0, Culture=neutral, processorArchitecture=AMD64">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>D:\11.05 KBS\BSolution(\BSolution(\bin\x64\Debug\Saige\SaigeVision.Net.Core.V2.dll</HintPath>
+      <HintPath>bin\x64\Debug\SaigeVision.Net.Core.V2.dll</HintPath>
     </Reference>
     <Reference Include="SaigeVision.Net.V2, Version=2.5.0.0, Culture=neutral, processorArchitecture=AMD64">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>D:\11.05 KBS\BSolution(\BSolution(\bin\x64\Debug\Saige\SaigeVision.Net.V2.dll</HintPath>
+      <HintPath>bin\x64\Debug\SaigeVision.Net.V2.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Buffers, Version=4.0.5.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
@@ -116,6 +124,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Algorithm\AutoTeach.cs" />
     <Compile Include="Algorithm\BlobAlgorithm.cs" />
     <Compile Include="Algorithm\DrawInspectInfo.cs" />
     <Compile Include="Algorithm\InspAlgorithm.cs" />
@@ -134,6 +143,9 @@
     <Compile Include="Grab\GrabModel.cs" />
     <Compile Include="Grab\HikRobotCam.cs" />
     <Compile Include="Grab\WebCam.cs" />
+    <Compile Include="Inspect\InspectBoard.cs" />
+    <Compile Include="Inspect\InspResult.cs" />
+    <Compile Include="Inspect\InspWorker.cs" />
     <Compile Include="Inspect\SaigeAI.cs" />
     <Compile Include="LogForm.cs">
       <SubType>Form</SubType>
@@ -191,6 +203,12 @@
     <Compile Include="Property\ImageFilterProp.Designer.cs">
       <DependentUpon>ImageFilterProp.cs</DependentUpon>
     </Compile>
+    <Compile Include="ResultForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ResultForm.Designer.cs">
+      <DependentUpon>ResultForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="RunForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -232,6 +250,12 @@
     <Compile Include="UIControl\ImageViewCtrl.Designer.cs">
       <DependentUpon>ImageViewCtrl.cs</DependentUpon>
     </Compile>
+    <Compile Include="UIControl\MainViewToolbar.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UIControl\MainViewToolbar.Designer.cs">
+      <DependentUpon>MainViewToolbar.cs</DependentUpon>
+    </Compile>
     <Compile Include="UIControl\PatternImageEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -245,6 +269,9 @@
       <DependentUpon>RangeTrackbar.cs</DependentUpon>
     </Compile>
     <Compile Include="Util\BitmapExtension.cs" />
+    <Compile Include="Util\ImageFileSorter.cs" />
+    <Compile Include="Util\ImageLoader.cs" />
+    <Compile Include="Util\Slogger.cs" />
     <Compile Include="Util\XmlHelper.cs" />
     <EmbeddedResource Include="CameraForm.resx">
       <DependentUpon>CameraForm.cs</DependentUpon>
@@ -300,12 +327,18 @@
     <EmbeddedResource Include="UIControl\ImageViewCtrl.resx">
       <DependentUpon>ImageViewCtrl.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="UIControl\MainViewToolbar.resx">
+      <DependentUpon>MainViewToolbar.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="UIControl\PatternImageEditor.resx">
       <DependentUpon>PatternImageEditor.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UIControl\RangeTrackbar.resx">
       <DependentUpon>RangeTrackbar.cs</DependentUpon>
     </EmbeddedResource>
+    <None Include="log4net.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -320,7 +353,9 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="log4net.dll" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\System.ValueTuple.4.6.1\build\net471\System.ValueTuple.targets" Condition="Exists('..\packages\System.ValueTuple.4.6.1\build\net471\System.ValueTuple.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

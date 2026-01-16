@@ -5,6 +5,7 @@ using System.Linq;
 using System.Windows.Forms;
 using WeifenLuo.WinFormsUI.Docking;
 using BSolution_.Teach;
+using BSolution_.Util;
 
 namespace BSolution_
 {
@@ -27,6 +28,8 @@ namespace BSolution_
             LoadDockingWindows();
 
             Global.Inst.InspStage.Initialize();
+
+            LoadSetting();
         }
 
         public static T GetDockForm<T>() where T : DockContent
@@ -64,14 +67,25 @@ namespace BSolution_
             var cameraWindow = new CameraForm();
             cameraWindow.Show(_dockPanel, DockState.Document);
 
-            var runWindow = new RunForm();
-            runWindow.Show(cameraWindow.Pane, DockAlignment.Bottom, 0.3);
+            var resultWindow = new LogForm();
+            resultWindow.Show(cameraWindow.Pane, DockAlignment.Bottom, 0.3);
 
             var modelTreeWindow = new ModelTreeForm();
-            modelTreeWindow.Show(runWindow.Pane, DockAlignment.Right, 0.3);
+            modelTreeWindow.Show(resultWindow.Pane, DockAlignment.Right, 0.3);
+
+            var runWindow = new RunForm();
+            runWindow.Show(modelTreeWindow.Pane, null);
 
             var propWindow = new PropertiesForm();
             propWindow.Show(_dockPanel, DockState.DockRight);
+
+            var logWindow = new ResultForm();
+            logWindow.Show(propWindow.Pane, DockAlignment.Bottom,0.3);
+        }
+
+        private void LoadSetting()
+        {
+            cycleModeMenuItem.Checked = SettingXml.Inst.CycleMode;
         }
 
         private void imageSaveToolStripMenuItem_Click(object sender, EventArgs e)
@@ -82,6 +96,7 @@ namespace BSolution_
 
         private void setupToolStripMenuItem1_Click(object sender, EventArgs e)
         {
+            Slogger.Write($"환경설정창 열기");
             SetupForm setupForm = new SetupForm();
             setupForm.ShowDialog();
         }
@@ -155,6 +170,12 @@ namespace BSolution_
                     Global.Inst.InspStage.SaveModel(filePath);
                 }
             }
+        }
+
+        private void cycleModeMenuItem_Click(object sender, EventArgs e)
+        {
+            bool isChecked = cycleModeMenuItem.Checked;
+            SettingXml.Inst.CycleMode = isChecked;
         }
     }
 }

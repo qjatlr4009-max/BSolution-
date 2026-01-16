@@ -57,16 +57,19 @@ namespace BSolution_.Teach
             switch (inspWindow.InspWindowType)
             {
                 case InspWindowType.Base:
-                    inspWindow.AddInspAlgorithm(Algorithm.InspectType.InspMatch);
-                    inspWindow.AddInspAlgorithm(Algorithm.InspectType.InspBinary);
+                    inspWindow.AddInspAlgorithm(InspectType.InspMatch);
+                    inspWindow.AddInspAlgorithm(InspectType.InspBinary);
                     break;
                 case InspWindowType.Body:
-                    inspWindow.AddInspAlgorithm(Algorithm.InspectType.InspMatch);
-                    inspWindow.AddInspAlgorithm(Algorithm.InspectType.InspBinary);
+                    inspWindow.AddInspAlgorithm(InspectType.InspMatch);
+                    inspWindow.AddInspAlgorithm(InspectType.InspBinary);
                     break;
                 case InspWindowType.Sub:
-                    inspWindow.AddInspAlgorithm(Algorithm.InspectType.InspMatch);
-                    inspWindow.AddInspAlgorithm(Algorithm.InspectType.InspBinary);
+                    inspWindow.AddInspAlgorithm(InspectType.InspMatch);
+                    inspWindow.AddInspAlgorithm(InspectType.InspBinary);
+                    break;
+                case InspWindowType.ID:
+                    inspWindow.AddInspAlgorithm(InspectType.InspMatch);
                     break;
 
             }
@@ -91,6 +94,13 @@ namespace BSolution_.Teach
                     name = "SUB";
                     prefix = "SUB";
                     break;
+                case InspWindowType.ID:
+                    name = "ID";
+                    prefix = "ID";
+                    break;
+
+                default:
+                    return false;
             }
             return true;
         }

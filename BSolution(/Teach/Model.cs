@@ -13,6 +13,7 @@ namespace BSolution_.Teach
 {
     public class Model
     {
+        public string ModelFilePath { get; set; }
         public string ModelName { get; set; } = "";
         public string ModelInfo { get; set; } = "";
         public string ModelPath { get; set; } = "";

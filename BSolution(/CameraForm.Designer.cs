@@ -28,8 +28,19 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.mainViewToolbar = new BSloution_.UIControl.MainViewToolbar();
             this.imageViewer = new BSolution_.UIControl.ImageViewCtrl();
             this.SuspendLayout();
+            // 
+            // mainViewToolbar
+            // 
+            this.mainViewToolbar.BackColor = System.Drawing.SystemColors.Control;
+            this.mainViewToolbar.Dock = System.Windows.Forms.DockStyle.Right;
+            this.mainViewToolbar.Location = new System.Drawing.Point(987, 0);
+            this.mainViewToolbar.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.mainViewToolbar.Name = "mainViewToolbar";
+            this.mainViewToolbar.Size = new System.Drawing.Size(94, 628);
+            this.mainViewToolbar.TabIndex = 1;
             // 
             // imageViewer
             // 
@@ -38,15 +49,18 @@
             this.imageViewer.Name = "imageViewer";
             this.imageViewer.Size = new System.Drawing.Size(1081, 628);
             this.imageViewer.TabIndex = 0;
+            this.imageViewer.WorkingState = "";
             // 
             // CameraForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1081, 628);
+            this.Controls.Add(this.mainViewToolbar);
             this.Controls.Add(this.imageViewer);
             this.Name = "CameraForm";
             this.Text = "CameraForm";
+            this.Resize += new System.EventHandler(this.CameraForm_Resize);
             this.ResumeLayout(false);
 
         }
@@ -54,5 +68,6 @@
         #endregion
 
         private UIControl.ImageViewCtrl imageViewer;
+        private BSloution_.UIControl.MainViewToolbar mainViewToolbar;
     }
 }

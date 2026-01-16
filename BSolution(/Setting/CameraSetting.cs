@@ -1,4 +1,5 @@
 ﻿using BSolution_.Grab;
+using BSolution_.Util;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -32,6 +33,8 @@ namespace BSolution_.Setting
             SettingXml.Inst.CamType = (CameraType)cbCameraType.SelectedIndex;
             
             SettingXml.Save();
+
+            Slogger.Write($"카메라 설정 저장");
         }
 
         private void btnApply_Click(object sender, EventArgs e)

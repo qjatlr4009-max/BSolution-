@@ -35,6 +35,9 @@
         private void InitializeComponent()
         {
             this.grpMatch = new System.Windows.Forms.GroupBox();
+            this.btnApplyAutoTeachRoi = new System.Windows.Forms.Button();
+            this.btnClearAutoTeach = new System.Windows.Forms.Button();
+            this.btnAutoTeach = new System.Windows.Forms.Button();
             this.chkInvertResult = new System.Windows.Forms.CheckBox();
             this.lbScore = new System.Windows.Forms.Label();
             this.txtExtendY = new System.Windows.Forms.TextBox();
@@ -49,6 +52,9 @@
             // 
             // grpMatch
             // 
+            this.grpMatch.Controls.Add(this.btnApplyAutoTeachRoi);
+            this.grpMatch.Controls.Add(this.btnClearAutoTeach);
+            this.grpMatch.Controls.Add(this.btnAutoTeach);
             this.grpMatch.Controls.Add(this.chkInvertResult);
             this.grpMatch.Controls.Add(this.lbScore);
             this.grpMatch.Controls.Add(this.txtExtendY);
@@ -57,18 +63,49 @@
             this.grpMatch.Controls.Add(this.lbX);
             this.grpMatch.Controls.Add(this.lbExtent);
             this.grpMatch.Location = new System.Drawing.Point(9, 52);
-            this.grpMatch.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.grpMatch.Margin = new System.Windows.Forms.Padding(4);
             this.grpMatch.Name = "grpMatch";
-            this.grpMatch.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.grpMatch.Padding = new System.Windows.Forms.Padding(4);
             this.grpMatch.Size = new System.Drawing.Size(420, 154);
             this.grpMatch.TabIndex = 5;
             this.grpMatch.TabStop = false;
             // 
+            // btnApplyAutoTeachRoi
+            // 
+            this.btnApplyAutoTeachRoi.Font = new System.Drawing.Font("굴림", 7F);
+            this.btnApplyAutoTeachRoi.Location = new System.Drawing.Point(105, 111);
+            this.btnApplyAutoTeachRoi.Name = "btnApplyAutoTeachRoi";
+            this.btnApplyAutoTeachRoi.Size = new System.Drawing.Size(164, 36);
+            this.btnApplyAutoTeachRoi.TabIndex = 6;
+            this.btnApplyAutoTeachRoi.Text = "오토티칭 -> ROI 변환";
+            this.btnApplyAutoTeachRoi.UseVisualStyleBackColor = true;
+            this.btnApplyAutoTeachRoi.Click += new System.EventHandler(this.btnApplyAutoTeachRoi_Click);
+            // 
+            // btnClearAutoTeach
+            // 
+            this.btnClearAutoTeach.Location = new System.Drawing.Point(275, 111);
+            this.btnClearAutoTeach.Name = "btnClearAutoTeach";
+            this.btnClearAutoTeach.Size = new System.Drawing.Size(134, 36);
+            this.btnClearAutoTeach.TabIndex = 5;
+            this.btnClearAutoTeach.Text = "오토티칭 삭제";
+            this.btnClearAutoTeach.UseVisualStyleBackColor = true;
+            this.btnClearAutoTeach.Click += new System.EventHandler(this.btnClearAutoTeach_Click);
+            // 
+            // btnAutoTeach
+            // 
+            this.btnAutoTeach.Location = new System.Drawing.Point(7, 110);
+            this.btnAutoTeach.Name = "btnAutoTeach";
+            this.btnAutoTeach.Size = new System.Drawing.Size(92, 36);
+            this.btnAutoTeach.TabIndex = 4;
+            this.btnAutoTeach.Text = "오토티칭";
+            this.btnAutoTeach.UseVisualStyleBackColor = true;
+            this.btnAutoTeach.Click += new System.EventHandler(this.btnAutoTeach_Click_1);
+            // 
             // chkInvertResult
             // 
             this.chkInvertResult.AutoSize = true;
-            this.chkInvertResult.Location = new System.Drawing.Point(19, 118);
-            this.chkInvertResult.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.chkInvertResult.Location = new System.Drawing.Point(229, 73);
+            this.chkInvertResult.Margin = new System.Windows.Forms.Padding(4);
             this.chkInvertResult.Name = "chkInvertResult";
             this.chkInvertResult.Size = new System.Drawing.Size(112, 22);
             this.chkInvertResult.TabIndex = 3;
@@ -89,26 +126,29 @@
             // txtExtendY
             // 
             this.txtExtendY.Location = new System.Drawing.Point(229, 26);
-            this.txtExtendY.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txtExtendY.Margin = new System.Windows.Forms.Padding(4);
             this.txtExtendY.Name = "txtExtendY";
             this.txtExtendY.Size = new System.Drawing.Size(70, 28);
             this.txtExtendY.TabIndex = 1;
+            this.txtExtendY.Text = "500";
             // 
             // txtScore
             // 
             this.txtScore.Location = new System.Drawing.Point(123, 70);
-            this.txtScore.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txtScore.Margin = new System.Windows.Forms.Padding(4);
             this.txtScore.Name = "txtScore";
             this.txtScore.Size = new System.Drawing.Size(70, 28);
             this.txtScore.TabIndex = 1;
+            this.txtScore.Text = "70";
             // 
             // txtExtendX
             // 
             this.txtExtendX.Location = new System.Drawing.Point(123, 26);
-            this.txtExtendX.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txtExtendX.Margin = new System.Windows.Forms.Padding(4);
             this.txtExtendX.Name = "txtExtendX";
             this.txtExtendX.Size = new System.Drawing.Size(70, 28);
             this.txtExtendX.TabIndex = 1;
+            this.txtExtendX.Text = "500";
             // 
             // lbX
             // 
@@ -136,7 +176,7 @@
             this.chkUse.Checked = true;
             this.chkUse.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkUse.Location = new System.Drawing.Point(20, 20);
-            this.chkUse.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.chkUse.Margin = new System.Windows.Forms.Padding(4);
             this.chkUse.Name = "chkUse";
             this.chkUse.Size = new System.Drawing.Size(70, 22);
             this.chkUse.TabIndex = 6;
@@ -147,7 +187,7 @@
             // patternImageEditor
             // 
             this.patternImageEditor.Location = new System.Drawing.Point(9, 216);
-            this.patternImageEditor.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.patternImageEditor.Margin = new System.Windows.Forms.Padding(6);
             this.patternImageEditor.Name = "patternImageEditor";
             this.patternImageEditor.Size = new System.Drawing.Size(424, 242);
             this.patternImageEditor.TabIndex = 4;
@@ -159,7 +199,7 @@
             this.Controls.Add(this.patternImageEditor);
             this.Controls.Add(this.grpMatch);
             this.Controls.Add(this.chkUse);
-            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "MatchInspProp";
             this.Size = new System.Drawing.Size(446, 472);
             this.grpMatch.ResumeLayout(false);
@@ -181,5 +221,8 @@
         private System.Windows.Forms.Label lbExtent;
         private System.Windows.Forms.CheckBox chkUse;
         private UIControl.PatternImageEditor patternImageEditor;
+        private System.Windows.Forms.Button btnClearAutoTeach;
+        private System.Windows.Forms.Button btnAutoTeach;
+        private System.Windows.Forms.Button btnApplyAutoTeachRoi;
     }
 }

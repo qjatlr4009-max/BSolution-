@@ -31,11 +31,12 @@
             this.btnGrab = new System.Windows.Forms.Button();
             this.btnLive = new System.Windows.Forms.Button();
             this.btnStart = new System.Windows.Forms.Button();
+            this.btnStop = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // btnGrab
             // 
-            this.btnGrab.Location = new System.Drawing.Point(25, 29);
+            this.btnGrab.Location = new System.Drawing.Point(42, 47);
             this.btnGrab.Name = "btnGrab";
             this.btnGrab.Size = new System.Drawing.Size(163, 57);
             this.btnGrab.TabIndex = 0;
@@ -45,7 +46,7 @@
             // 
             // btnLive
             // 
-            this.btnLive.Location = new System.Drawing.Point(226, 29);
+            this.btnLive.Location = new System.Drawing.Point(257, 47);
             this.btnLive.Name = "btnLive";
             this.btnLive.Size = new System.Drawing.Size(163, 57);
             this.btnLive.TabIndex = 1;
@@ -55,7 +56,7 @@
             // 
             // btnStart
             // 
-            this.btnStart.Location = new System.Drawing.Point(438, 29);
+            this.btnStart.Location = new System.Drawing.Point(42, 144);
             this.btnStart.Name = "btnStart";
             this.btnStart.Size = new System.Drawing.Size(163, 57);
             this.btnStart.TabIndex = 2;
@@ -63,11 +64,22 @@
             this.btnStart.UseVisualStyleBackColor = true;
             this.btnStart.Click += new System.EventHandler(this.btnStart_Click);
             // 
+            // btnStop
+            // 
+            this.btnStop.Location = new System.Drawing.Point(265, 144);
+            this.btnStop.Name = "btnStop";
+            this.btnStop.Size = new System.Drawing.Size(155, 57);
+            this.btnStop.TabIndex = 3;
+            this.btnStop.Text = "중단";
+            this.btnStop.UseVisualStyleBackColor = true;
+            this.btnStop.Click += new System.EventHandler(this.btnStop_Click);
+            // 
             // RunForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(662, 125);
+            this.ClientSize = new System.Drawing.Size(468, 251);
+            this.Controls.Add(this.btnStop);
             this.Controls.Add(this.btnStart);
             this.Controls.Add(this.btnLive);
             this.Controls.Add(this.btnGrab);
@@ -82,5 +94,6 @@
         private System.Windows.Forms.Button btnGrab;
         private System.Windows.Forms.Button btnLive;
         private System.Windows.Forms.Button btnStart;
+        private System.Windows.Forms.Button btnStop;
     }
 }

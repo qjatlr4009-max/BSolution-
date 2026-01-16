@@ -9,15 +9,7 @@ using System.Xml.Serialization;
 
 namespace BSolution_.Algorithm
 {
-    public enum InspectType
-    {
-        InspNone = -1,
-        InspBinary,
-        InspFilter,
-        InspMatch,
-        InspAIModule,
-        InspCount
-    }
+
 
     [XmlInclude(typeof(BlobAlgorithm))]
     [XmlInclude(typeof(MatchAlgorithm))]

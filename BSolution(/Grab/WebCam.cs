@@ -1,4 +1,5 @@
-﻿using OpenCvSharp;
+﻿using BSolution_.Util;
+using OpenCvSharp;
 using System;
 using System.Collections.Generic;
 using System.Deployment.Internal;
@@ -44,6 +45,11 @@ namespace BSolution_.Grab
                     if (_userImageBuffer[bufferIndex].ImageBuffer.Length >= bufSize)
                     {
                         Marshal.Copy(_frame.Data, _userImageBuffer[BufferIndex].ImageBuffer, 0, bufSize);
+                    }
+                    else
+                    {
+                        Slogger.Write("Error: Buffer size is too small.", Slogger.LogType.Error);
+
                     }
                 }
                 OnTransferCompleted(bufferIndex);
