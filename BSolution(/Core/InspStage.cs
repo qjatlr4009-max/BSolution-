@@ -1,6 +1,7 @@
 ﻿using BSolution_.Algorithm;
 using BSolution_.Grab;
 using BSolution_.Inspect;
+using BSolution_.Sequence;
 using BSolution_.Setting;
 using BSolution_.Teach;
 using BSolution_.Util;
@@ -50,7 +51,7 @@ namespace BSolution_.Core
         private string _lotNumber;
         private string _serialID;
 
-
+        private bool _isInspectMode = false;
 
         public InspStage() { }
         public ImageSpace ImageSpace
@@ -137,6 +138,9 @@ namespace BSolution_.Core
 
                 InitModelGrab(MAX_GRAB_BUF);
             }
+
+            VisionSequence.Inst.InitSequence();
+            VisionSequence.Inst.SeqCommand += SeqCommand;
 
             if (!LastestModelOpen())
             {
@@ -739,6 +743,9 @@ namespace BSolution_.Core
             if (_inspWorker != null)
                 _inspWorker.Stop();
 
+            VisionSequence.Inst.StopAutoRun();
+            _isInspectMode = false;
+
             SetWorkingState(WorkingState.NONE);
         }
 
@@ -758,6 +765,48 @@ namespace BSolution_.Core
             DisplayGrabImage(0);
 
             return true;
+        }
+
+        private void SeqCommand(object sender, SeqCmd seqCmd, object Param)
+        {
+            switch (seqCmd)
+            {
+                case SeqCmd.InspStart:
+                    {
+                        Slogger.Write("MMI : InspStart", Slogger.LogType.Info);
+
+                        string errMsg;
+
+                        if (UseCamera)
+                        {
+                            if (!Grab(0))
+                            {
+                                errMsg = string.Format("Failed to grab");
+                                Slogger.Write(errMsg, Slogger.LogType.Error);
+                            }
+                        }
+                        else
+                        {
+                            if (!VirtualGrab())
+                            {
+                                errMsg = string.Format("Failed to virtual grab");
+                                Slogger.Write(errMsg, Slogger.LogType.Error);
+                            }
+                        }
+                    }
+                    break;
+                case SeqCmd.InspEnd:
+                    {
+                        Slogger.Write("MMI : InspEnd", Slogger.LogType.Info);
+
+                        string errMsg = "";
+
+                        Slogger.Write("검사 종료");
+
+                        VisionSequence.Inst.VisionCommand(Vision2Mmi.InspEnd, errMsg);
+                    }
+                    break;
+            }
         }
 
         public bool InspectReady(string lotNumber, string serialID)
@@ -792,7 +841,11 @@ namespace BSolution_.Core
 
             SetWorkingState(WorkingState.INSPECT);
 
+            string modelName = Path.GetFileNameWithoutExtension(modelPath);
+            VisionSequence.Inst.StartAutoRun(modelName);
+            _isInspectMode = true;
             return true;
+
         }
 
         public void SetWorkingState(WorkingState workingState)
@@ -815,6 +868,9 @@ namespace BSolution_.Core
                 if (disposing)
                 {
                     // Dispose managed resources.
+
+                    VisionSequence.Inst.SeqCommand -= SeqCommand;
+
                     if (_saigeAI != null)
                     {
                         _saigeAI.Dispose();

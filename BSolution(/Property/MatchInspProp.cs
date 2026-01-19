@@ -293,60 +293,109 @@ namespace BSolution_.Property
 
         private void btnApplyAutoTeachRoi_Click(object sender, EventArgs e)
         {
-            var model = Global.Inst.InspStage.CurModel;
+            if (_matchAlgo == null)
+                return;
 
+            var model = Global.Inst.InspStage.CurModel;
+            if (model == null)
+                return;
+
+            // 오토티칭 결과 스냅샷(선택 변경 방지)
+            MatchAlgorithm srcAlgo = _matchAlgo;
+
+            if (srcAlgo.AutoTeachRois == null || srcAlgo.AutoTeachRois.Count == 0)
+            {
+                MessageBox.Show("오토티칭 결과가 없습니다. 먼저 오토티칭을 실행하세요.");
+                return;
+            }
+
+            // ROI 선택 조건
+            InspWindow selected = Global.Inst.InspStage.SelectedInspWindow;
+            if (selected == null)
+            {
+                MessageBox.Show("ROI가 선택된 상태에서만 적용할 수 있습니다.");
+                return;
+            }
+
+            // 모델 경로 체크 (Teach 폴더 만들기 위해 필요)
             if (string.IsNullOrEmpty(model.ModelFilePath))
             {
                 MessageBox.Show("모델을 먼저 저장하거나 로드한 뒤 ROI 적용 가능");
                 return;
-
-                string modelDir = Path.GetDirectoryName(model.ModelFilePath);
-                string teachDir = Path.Combine(modelDir, "Teach");
-                Directory.CreateDirectory(teachDir);
             }
+
+            string modelDir = Path.GetDirectoryName(model.ModelFilePath);
+            string teachDir = Path.Combine(modelDir, "Teach");
+            Directory.CreateDirectory(teachDir);
+
+            // 소스 이미지 확보(오토티칭 채널 기준)
+            Mat srcImage = Global.Inst.InspStage.GetMat(0, srcAlgo.ImageChannel);
+
+            int createdCount = srcAlgo.AutoTeachRois.Count;
+            InspWindowType windowType = selected.InspWindowType;
+
+            // "추가 전" 리스트 카운트 저장 (void 메서드라 newWin을 못 받으니 이걸로 찾음)
+            var list = model.InspWindowList;
+            int beforeCount = (list != null) ? list.Count : 0;
+
+            // ROI 반복 추가 + 티칭 파일 저장 + TeachImagePaths 등록
+            for (int i = 0; i < srcAlgo.AutoTeachRois.Count; i++)
             {
-                if (_matchAlgo == null)
-                    return;
+                var r = srcAlgo.AutoTeachRois[i];
 
-                var srcAlgo = _matchAlgo;
-                int createdCount = srcAlgo.AutoTeachRois.Count;
+                // 1) ROI 추가
+                Global.Inst.InspStage.AddInspWindowFromAutoTeach(windowType, r);
 
-                if (_matchAlgo.AutoTeachRois == null || _matchAlgo.AutoTeachRois.Count == 0)
+                // 2) 방금 추가된 InspWindow 가져오기(일반적으로 마지막)
+                InspWindow newWin = null;
+                if (list != null && list.Count > beforeCount)
                 {
-                    MessageBox.Show("오토티칭 결과가 없습니다. 먼저 오토티칭을 실행하세요.");
-                    return;
+                    newWin = list[list.Count - 1];
+                    beforeCount = list.Count; // 다음 반복을 위해 갱신
                 }
 
-
-                var rois = srcAlgo.AutoTeachRois.ToList();
-
-                InspWindow selected = Global.Inst.InspStage.SelectedInspWindow;
-                if (selected == null)
+                if (newWin == null)
                 {
-                    MessageBox.Show("ROI가 선택된 상태에서만 적용할 수 있습니다.");
-                    return;
+                    Slogger.Write("AutoTeach ROI added, but failed to fetch new InspWindow.");
+                    continue;
                 }
 
-                InspWindowType windowType = selected.InspWindowType;
+                // 3) 템플릿(티칭 이미지) 저장 경로
+                string id = Guid.NewGuid().ToString("N");
+                string savePath = Path.Combine(teachDir, id + "_match.png");
 
-                foreach (var r in _matchAlgo.AutoTeachRois)
+                // 4) 템플릿 파일 저장
+                bool saved = SaveTeachTemplate(srcImage, r, savePath);
+                if (!saved)
                 {
-                    Global.Inst.InspStage.AddInspWindowFromAutoTeach(windowType, r);
+                    Slogger.Write("Teach template save failed: " + savePath);
+                    continue;
                 }
 
-                Global.Inst.InspStage.UpdateDiagramEntity();
-                Global.Inst.InspStage.RedrawMainView();
+                // 5) TeachImagePaths 등록 (모델 저장 대상)
+                if (newWin.TeachImagePaths == null)
+                    newWin.TeachImagePaths = new List<string>();
 
-                var model = Global.Inst.InspStage.CurModel;
-                if (model != null && !string.IsNullOrEmpty(model.ModelPath))
-                    model.Save();
+                newWin.TeachImagePaths.Add(savePath);
 
-                MessageBox.Show(string.Format("ROI 적용 완료 : {0}개 생성", createdCount));
+                // 6) 재학습 준비
+                newWin.IsPatternLearn = false;
+                newWin.ClearTeachImageCache();
 
-                Slogger.Write($"ROI : {createdCount}개 생성");
-
+                // 여기서 즉시 학습까지 하고 싶으면(권장):
+                // newWin.PatternLearn();
             }
+
+            Global.Inst.InspStage.UpdateDiagramEntity();
+            Global.Inst.InspStage.RedrawMainView();
+
+            // 모델 저장 (ModelPath가 아니라 ModelFilePath 기준이 더 일관적)
+            model.Save();
+
+            MessageBox.Show(string.Format("ROI 적용 완료 : {0}개 생성", createdCount));
+            Slogger.Write(string.Format("ROI : {0}개 생성", createdCount));
         }
+
 
         private static OpenCvSharp.Rect ClampRect(OpenCvSharp.Rect r, OpenCvSharp.Mat img)
         {

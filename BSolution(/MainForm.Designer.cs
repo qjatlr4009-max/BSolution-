@@ -123,7 +123,7 @@
             // setupToolStripMenuItem1
             // 
             this.setupToolStripMenuItem1.Name = "setupToolStripMenuItem1";
-            this.setupToolStripMenuItem1.Size = new System.Drawing.Size(161, 34);
+            this.setupToolStripMenuItem1.Size = new System.Drawing.Size(270, 34);
             this.setupToolStripMenuItem1.Text = "Setup";
             this.setupToolStripMenuItem1.Click += new System.EventHandler(this.setupToolStripMenuItem1_Click);
             // 
@@ -139,7 +139,7 @@
             // 
             this.cycleModeMenuItem.CheckOnClick = true;
             this.cycleModeMenuItem.Name = "cycleModeMenuItem";
-            this.cycleModeMenuItem.Size = new System.Drawing.Size(270, 34);
+            this.cycleModeMenuItem.Size = new System.Drawing.Size(212, 34);
             this.cycleModeMenuItem.Text = "Cycle Mode";
             this.cycleModeMenuItem.Click += new System.EventHandler(this.cycleModeMenuItem_Click);
             // 

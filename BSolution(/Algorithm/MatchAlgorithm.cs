@@ -24,6 +24,7 @@ namespace BSolution_.Algorithm
        
         [XmlIgnore]
         public List<AutoTeach> AutoTeachResults { get; set; } = new List<AutoTeach>();
+        public int TemplateCount { get { return _templateImages.Count; } }
 
 
         public int MatchScore { get; set; } = 60;
@@ -104,6 +105,7 @@ namespace BSolution_.Algorithm
 
             for (int i = 0; i < _templateImages.Count; i++)
             {
+
                 Cv2.MatchTemplate(image, _templateImages[i], result, TemplateMatchModes.CCoeffNormed);
 
                 Cv2.MinMaxLoc(result, out _, out double value, out _, out Point loc);
@@ -244,6 +246,7 @@ namespace BSolution_.Algorithm
             using (Mat result = new Mat())
             {
                 Cv2.MatchTemplate(image, _templateImages[0], result, TemplateMatchModes.CCoeffNormed);
+                
                  
 
                 List<Rect> detectedRegions = new List<Rect>();

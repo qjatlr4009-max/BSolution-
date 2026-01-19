@@ -107,10 +107,10 @@ namespace BSolution_.Teach
 
             foreach (var algorithm in AlgorithmList)
             {
-                if (algorithm.InspectType != InspectType.InspMatch)
+                MatchAlgorithm matchAlgo = algorithm as MatchAlgorithm;
+                if (matchAlgo == null)
                     continue;
 
-                MatchAlgorithm matchAlgo = (MatchAlgorithm)algorithm;
 
                 if (_windowImages == null || _windowImages.Count == 0)
                 {
@@ -143,6 +143,20 @@ namespace BSolution_.Teach
             IsPatternLearn = true;
 
             return true;
+        }
+
+        public void ClearTeachImageCache()
+        {
+            if (_windowImages == null)
+                return;
+
+            for (int i = 0; i < _windowImages.Count; i++)
+            {
+                if (_windowImages[i] != null)
+                    _windowImages[i].Dispose();
+            }
+
+            _windowImages.Clear();
         }
 
         public void LoadTeachImagesIfNeeded()

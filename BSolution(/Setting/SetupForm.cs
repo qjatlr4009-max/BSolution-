@@ -33,6 +33,9 @@ namespace BSolution_.Setting
             PathSetting pathSetting = new PathSetting();
             AddTabControl(pathSetting, "Path");
 
+            CommunicatorSetting comSetting = new CommunicatorSetting();
+            AddTabControl(comSetting, "Communicator");
+
             tabSetting.SelectTab(0);
         }
 

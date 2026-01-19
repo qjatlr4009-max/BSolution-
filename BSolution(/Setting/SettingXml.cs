@@ -1,5 +1,7 @@
 ﻿using BSolution_.Grab;
+using BSolution_.Sequence;
 using Common.Util.Helpers;
+using JidamVision4.Sequence;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -79,5 +81,10 @@ namespace BSolution_.Setting
         public CameraType CamType { get; set; } = CameraType.WebCam;
 
         public bool CycleMode { get; set; } = false;
+
+        public CommunicatorType CommType {  get; set; }
+
+        public string CommIP { get; set; } = "127.0.0.1";
+
     }
 }
